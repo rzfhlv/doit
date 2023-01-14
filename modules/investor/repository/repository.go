@@ -18,10 +18,10 @@ type IRepository interface {
 
 type Repository struct {
 	db      *sqlx.DB
-	dbMongo *mongo.Client
+	dbMongo *mongo.Database
 }
 
-func NewRepository(db *sqlx.DB, dbMongo *mongo.Client) IRepository {
+func NewRepository(db *sqlx.DB, dbMongo *mongo.Database) IRepository {
 	return &Repository{
 		db:      db,
 		dbMongo: dbMongo,
@@ -29,7 +29,7 @@ func NewRepository(db *sqlx.DB, dbMongo *mongo.Client) IRepository {
 }
 
 func (r *Repository) SaveMongo(ctx context.Context, investor model.Investor) error {
-	_, err := r.dbMongo.Database("doit").Collection("investors").InsertOne(ctx, investor)
+	_, err := r.dbMongo.Collection("investors").InsertOne(ctx, investor)
 	if err != nil {
 		return err
 	}
@@ -46,7 +46,7 @@ func (r *Repository) GetPsql(ctx context.Context) ([]model.Investor, error) {
 }
 
 func (r *Repository) UpsertMongo(ctx context.Context, investor model.Investor) error {
-	_, err := r.dbMongo.Database("doit").Collection("investors").
+	_, err := r.dbMongo.Collection("investors").
 		UpdateOne(ctx,
 			bson.M{
 				"id": investor.ID,

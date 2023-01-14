@@ -62,7 +62,7 @@ func main() {
 		log.Printf("err mongo connect: %v", err.Error())
 	}
 
-	investorRepo := repository.NewRepository(db, client)
+	investorRepo := repository.NewRepository(db, client.Database("doit"))
 	investorUsecase := usecase.NewUsecase(investorRepo)
 	start := time.Now()
 	// err = investorUsecase.MigrateInvestors(context.Background())

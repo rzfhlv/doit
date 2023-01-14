@@ -4,7 +4,6 @@ import (
 	"context"
 	"doit/modules/investor/model"
 	"doit/modules/investor/repository"
-	"fmt"
 	"log"
 	"sync"
 )
@@ -70,9 +69,7 @@ func (u *Usecase) getInvestors() <-chan model.Investor {
 		if err != nil {
 			log.Printf("error get investors: %v", err.Error())
 		}
-		fmt.Println("range", len(investors))
-		for i, investor := range investors {
-			fmt.Println("index", i)
+		for _, investor := range investors {
 			chanOut <- investor
 		}
 

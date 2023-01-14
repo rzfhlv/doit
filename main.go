@@ -18,6 +18,8 @@ import (
 	"github.com/pressly/goose/v3"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
+	"github.com/jasonlvhit/gocron"
 )
 
 //go:embed migrations/*.sql
@@ -63,14 +65,17 @@ func main() {
 	investorRepo := repository.NewRepository(db, client)
 	investorUsecase := usecase.NewUsecase(investorRepo)
 	start := time.Now()
-	err = investorUsecase.MigrateInvestors(context.Background())
-	if err != nil {
-		log.Printf("error migration: %v\n", err.Error())
-	}
+	// err = investorUsecase.MigrateInvestors(context.Background())
+	// if err != nil {
+	// 	log.Printf("error migration: %v\n", err.Error())
+	// }
 	duration := time.Since(start)
-
-	fmt.Println("Waaaaack!")
 	fmt.Printf("Done in %v seconds\n", duration.Seconds())
+
+	// start cron job
+	s := gocron.NewScheduler()
+	s.Every(3).Seconds().Do(investorUsecase.MigrateInvestors, context.Background())
+	<-s.Start()
 }
 
 func handleArgs(db *sqlx.DB) {

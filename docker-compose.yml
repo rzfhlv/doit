@@ -1,0 +1,24 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:10
+    restart: always
+    environment:
+      POSTGRES_USER: doit
+      POSTGRES_PASSWORD: verysecret
+      POSTGRES_DB: doit
+    ports:
+      - "5434:5432"
+    volumes:
+      - ~/data/db/postgres/doit:/var/lib/postgresql/data
+
+  mongodb:
+    image: mongo:5.0
+    ports:
+      - 27017:27017
+    volumes:
+      - ~/data/db/mongodb:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=citizix
+      - MONGO_INITDB_ROOT_PASSWORD=S3cret

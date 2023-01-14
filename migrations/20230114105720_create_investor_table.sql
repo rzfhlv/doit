@@ -1,7 +1,7 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE investors (
-    id BIGINT NOT NULL,
+    id BIGSERIAL,
     name VARCHAR (255) NOT NULL,
     PRIMARY KEY(id)
 );

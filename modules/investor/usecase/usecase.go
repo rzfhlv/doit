@@ -2,8 +2,10 @@ package usecase
 
 import (
 	"context"
+	"database/sql"
 	"doit/modules/investor/model"
 	"doit/modules/investor/repository"
+	"doit/utilities"
 	"encoding/json"
 	"errors"
 	"log"
@@ -14,6 +16,8 @@ import (
 type IUsecase interface {
 	MigrateInvestors(ctx context.Context) error
 	ConventionalMigrate(ctx context.Context) error
+	GetAll(ctx context.Context, filter *utilities.Filter) (investors []model.Investor, err error)
+	GetByID(ctx context.Context, id int64) (investor model.Investor, err error)
 }
 
 type Usecase struct {
@@ -24,6 +28,35 @@ func NewUsecase(repo repository.IRepository) IUsecase {
 	return &Usecase{
 		repo: repo,
 	}
+}
+
+func (u *Usecase) GetAll(ctx context.Context, filter *utilities.Filter) (investors []model.Investor, err error) {
+	investors, err = u.repo.GetAll(ctx, *filter)
+	if err != nil {
+		log.Printf("[ERROR] Usecase GetAll: %v", err.Error())
+		return
+	}
+	if len(investors) < 1 {
+		investors = []model.Investor{}
+	}
+	total, err := u.repo.Count(ctx)
+	if err != nil {
+		log.Printf("[ERROR] Usecase GetAll Count: %v", err.Error())
+	}
+	filter.Total = total
+	return
+}
+
+func (u *Usecase) GetByID(ctx context.Context, id int64) (investor model.Investor, err error) {
+	investor, err = u.repo.GetByID(ctx, id)
+	if err != nil {
+		log.Printf("[ERROR] Usecase GetByID: %v", err.Error())
+		if err != sql.ErrNoRows {
+			return
+		}
+		err = nil
+	}
+	return
 }
 
 func (u *Usecase) ConventionalMigrate(ctx context.Context) error {

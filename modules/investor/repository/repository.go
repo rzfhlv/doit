@@ -3,6 +3,8 @@ package repository
 import (
 	"context"
 	"doit/modules/investor/model"
+	"doit/utilities"
+	"log"
 
 	"github.com/jmoiron/sqlx"
 	"go.mongodb.org/mongo-driver/bson"
@@ -16,6 +18,9 @@ type IRepository interface {
 	UpsertOutbox(ctx context.Context, outbox model.Outbox) error
 	DeleteOutbox(ctx context.Context, identifier int64) error
 	GetPsql(ctx context.Context) ([]model.Investor, error)
+	GetAll(ctx context.Context, filter utilities.Filter) (investors []model.Investor, err error)
+	GetByID(ctx context.Context, id int64) (investor model.Investor, err error)
+	Count(ctx context.Context) (total int, err error)
 }
 
 type Repository struct {
@@ -87,4 +92,28 @@ func (r *Repository) DeleteOutbox(ctx context.Context, identifier int64) error {
 		return err
 	}
 	return nil
+}
+
+func (r *Repository) GetAll(ctx context.Context, filter utilities.Filter) (investors []model.Investor, err error) {
+	err = r.db.Select(&investors, `SELECT * FROM investors ORDER BY investors.id DESC LIMIT $1 OFFSET $2;`, filter.Limit, filter.CalculateOffset())
+	if err != nil {
+		log.Printf("[ERROR] Repo GetAll: %v", err.Error())
+	}
+	return
+}
+
+func (r *Repository) GetByID(ctx context.Context, id int64) (investor model.Investor, err error) {
+	err = r.db.Get(&investor, `SELECT * FROM investors WHERE id = $1;`, id)
+	if err != nil {
+		log.Printf("[ERROR] Repo GetByID: %v", err.Error())
+	}
+	return
+}
+
+func (r *Repository) Count(ctx context.Context) (total int, err error) {
+	err = r.db.Get(&total, `SELECT count(*) FROM investors;`)
+	if err != nil {
+		log.Printf("[ERROR] Repo Count: %v", err.Error())
+	}
+	return
 }

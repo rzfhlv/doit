@@ -4,8 +4,11 @@ import (
 	"context"
 	"doit/modules/investor/model"
 	"doit/modules/investor/repository"
+	"encoding/json"
+	"errors"
 	"log"
 	"sync"
+	"time"
 )
 
 type IUsecase interface {
@@ -68,6 +71,7 @@ func (u *Usecase) getInvestors() <-chan model.Investor {
 		investors, err := u.repo.GetPsql(context.Background())
 		if err != nil {
 			log.Printf("error get investors: %v", err.Error())
+			return
 		}
 		for _, investor := range investors {
 			chanOut <- investor
@@ -83,11 +87,56 @@ func (u *Usecase) upsertInvestors(chanIn <-chan model.Investor) <-chan model.Inv
 	chanOut := make(chan model.Investor)
 
 	go func() {
+		ctx := context.Background()
 		log.Println("go routine triggerd upsertInvestors")
 		for investor := range chanIn {
-			err := u.repo.UpsertMongo(context.Background(), investor)
+			// save to outbox table
+			now := time.Now()
+			payload, err := json.Marshal(investor)
+			err = errors.New("paksa")
+			if err != nil {
+				log.Printf("error json marshal: %v", err.Error())
+				return
+			}
+			outBox := model.Outbox{
+				Identifier: investor.ID,
+				Payload:    string(payload),
+				Event:      "INVESTOR",
+				Status:     "PENDING",
+				CreatedAt:  now,
+				UpdatedAt:  now,
+			}
+			err = u.repo.UpsertOutbox(ctx, outBox)
+			if err != nil {
+				log.Printf("error save to outbox %v", err.Error())
+				return
+			}
+
+			// migrations
+			err = u.repo.UpsertMongo(ctx, investor)
 			if err != nil {
 				log.Printf("error migrations: %v", err.Error())
+				outBox := model.Outbox{
+					Identifier: investor.ID,
+					Payload:    string(payload),
+					Event:      "INVESTOR",
+					Status:     "FAILED",
+					CreatedAt:  now,
+					UpdatedAt:  now,
+				}
+				err = u.repo.UpsertOutbox(ctx, outBox)
+				if err != nil {
+					log.Printf("error save to outbox %v", err.Error())
+					return
+				}
+				return
+			}
+
+			// delete outbox
+			err = u.repo.DeleteOutbox(ctx, investor.ID)
+			if err != nil {
+				log.Printf("error save to outbox %v", err.Error())
+				return
 			}
 			chanOut <- investor
 		}

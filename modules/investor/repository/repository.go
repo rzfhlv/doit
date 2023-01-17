@@ -13,6 +13,8 @@ import (
 type IRepository interface {
 	SaveMongo(ctx context.Context, investor model.Investor) error
 	UpsertMongo(ctx context.Context, investor model.Investor) error
+	UpsertOutbox(ctx context.Context, outbox model.Outbox) error
+	DeleteOutbox(ctx context.Context, identifier int64) error
 	GetPsql(ctx context.Context) ([]model.Investor, error)
 }
 
@@ -56,6 +58,31 @@ func (r *Repository) UpsertMongo(ctx context.Context, investor model.Investor) e
 			}, &options.UpdateOptions{
 				Upsert: options.Update().SetUpsert(true).Upsert,
 			})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Repository) UpsertOutbox(ctx context.Context, outbox model.Outbox) error {
+	_, err := r.dbMongo.Collection("outbox").
+		UpdateOne(ctx,
+			bson.M{
+				"identifier": outbox.Identifier,
+			},
+			bson.M{
+				"$set": outbox,
+			}, &options.UpdateOptions{
+				Upsert: options.Update().SetUpsert(true).Upsert,
+			})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Repository) DeleteOutbox(ctx context.Context, identifier int64) error {
+	_, err := r.dbMongo.Collection("outbox").DeleteOne(ctx, bson.M{"identifier": identifier})
 	if err != nil {
 		return err
 	}

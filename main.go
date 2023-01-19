@@ -5,7 +5,6 @@ import (
 	"doit/route"
 	"doit/service"
 	"embed"
-	"fmt"
 
 	_ "github.com/lib/pq"
 )
@@ -14,8 +13,6 @@ import (
 var embedMigrations embed.FS
 
 func main() {
-	fmt.Println("Do it start")
-
 	// init config
 	cfg := config.Init()
 

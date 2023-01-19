@@ -1,6 +1,8 @@
 package route
 
 import (
+	"doit/modules/investor"
+	"doit/modules/person"
 	"doit/service"
 
 	"github.com/labstack/echo/v4"
@@ -9,11 +11,10 @@ import (
 func ListRoute(svc *service.Service) (e *echo.Echo) {
 	e = echo.New()
 
-	v1 := e.Group("/v1")
-	v1.GET("/investor", svc.InvestorHandler.GetAll)
-	v1.GET("/investor/:id", svc.InvestorHandler.GetByID)
+	route := e.Group("/v1")
 
-	v1.GET("/person", svc.PersonHandler.GetAll)
+	investor.Mount(route, svc.InvestorHandler)
+	person.Mount(route, svc.PersonHandler)
 
 	return
 }

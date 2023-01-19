@@ -10,24 +10,24 @@ type Response struct {
 }
 
 type Meta struct {
-	Limit     int `json:"limit"`
-	Page      int `json:"page"`
-	PerPage   int `json:"perPage"`
-	PageCount int `json:"pageCount"`
-	Total     int `json:"total"`
+	Limit     int   `json:"limit"`
+	Page      int   `json:"page"`
+	PerPage   int   `json:"perPage"`
+	PageCount int   `json:"pageCount"`
+	Total     int64 `json:"total"`
 }
 
-func BuildMeta(filter Filter, data int) Meta {
+func BuildMeta(param Param, data int) Meta {
 	pageCount := 0
-	if filter.Limit > 0 {
-		pageCount = int(math.Ceil(float64(filter.Total) / float64(filter.Limit)))
+	if param.Limit > 0 {
+		pageCount = int(math.Ceil(float64(param.Total) / float64(param.Limit)))
 	}
 	return Meta{
-		Limit:     filter.Limit,
-		Page:      filter.Page,
+		Limit:     param.Limit,
+		Page:      param.Page,
 		PerPage:   data,
 		PageCount: pageCount,
-		Total:     filter.Total,
+		Total:     param.Total,
 	}
 }
 

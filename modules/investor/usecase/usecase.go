@@ -7,7 +7,6 @@ import (
 	"doit/modules/investor/repository"
 	"doit/utilities"
 	"encoding/json"
-	"errors"
 	"log"
 	"sync"
 	"time"
@@ -16,7 +15,7 @@ import (
 type IUsecase interface {
 	MigrateInvestors(ctx context.Context) error
 	ConventionalMigrate(ctx context.Context) error
-	GetAll(ctx context.Context, filter *utilities.Filter) (investors []model.Investor, err error)
+	GetAll(ctx context.Context, param *utilities.Param) (investors []model.Investor, err error)
 	GetByID(ctx context.Context, id int64) (investor model.Investor, err error)
 }
 
@@ -30,10 +29,10 @@ func NewUsecase(repo repository.IRepository) IUsecase {
 	}
 }
 
-func (u *Usecase) GetAll(ctx context.Context, filter *utilities.Filter) (investors []model.Investor, err error) {
-	investors, err = u.repo.GetAll(ctx, *filter)
+func (u *Usecase) GetAll(ctx context.Context, param *utilities.Param) (investors []model.Investor, err error) {
+	investors, err = u.repo.GetAll(ctx, *param)
 	if err != nil {
-		log.Printf("[ERROR] Usecase GetAll: %v", err.Error())
+		log.Printf("[ERROR] Investor Usecase GetAll: %v", err.Error())
 		return
 	}
 	if len(investors) < 1 {
@@ -41,16 +40,16 @@ func (u *Usecase) GetAll(ctx context.Context, filter *utilities.Filter) (investo
 	}
 	total, err := u.repo.Count(ctx)
 	if err != nil {
-		log.Printf("[ERROR] Usecase GetAll Count: %v", err.Error())
+		log.Printf("[ERROR] Investor Usecase GetAll Count: %v", err.Error())
 	}
-	filter.Total = total
+	param.Total = total
 	return
 }
 
 func (u *Usecase) GetByID(ctx context.Context, id int64) (investor model.Investor, err error) {
 	investor, err = u.repo.GetByID(ctx, id)
 	if err != nil {
-		log.Printf("[ERROR] Usecase GetByID: %v", err.Error())
+		log.Printf("[ERROR] Investor Usecase GetByID: %v", err.Error())
 		if err != sql.ErrNoRows {
 			return
 		}
@@ -62,7 +61,7 @@ func (u *Usecase) GetByID(ctx context.Context, id int64) (investor model.Investo
 func (u *Usecase) ConventionalMigrate(ctx context.Context) error {
 	investors, err := u.repo.GetPsql(ctx)
 	if err != nil {
-		log.Printf("error get psql")
+		log.Printf("[ERROR] Investor ConventionalMigrate: %v", err.Error())
 		return err
 	}
 	for _, investor := range investors {
@@ -91,7 +90,7 @@ func (u *Usecase) MigrateInvestors(ctx context.Context) error {
 			counterTotal++
 		}
 	}
-	log.Printf("%d data migrated", counterTotal)
+	log.Printf("[INFO] Investor Usecase MigrateInvestors: %d Data Migrated", counterTotal)
 
 	return nil
 }
@@ -100,10 +99,9 @@ func (u *Usecase) getInvestors() <-chan model.Investor {
 	chanOut := make(chan model.Investor)
 
 	go func() {
-		log.Println("go routine triggerd getInvestors")
 		investors, err := u.repo.GetPsql(context.Background())
 		if err != nil {
-			log.Printf("error get investors: %v", err.Error())
+			log.Printf("[ERROR] Investor Usecase getInvestors: %v", err.Error())
 			return
 		}
 		for _, investor := range investors {
@@ -121,14 +119,12 @@ func (u *Usecase) upsertInvestors(chanIn <-chan model.Investor) <-chan model.Inv
 
 	go func() {
 		ctx := context.Background()
-		log.Println("go routine triggerd upsertInvestors")
 		for investor := range chanIn {
 			// save to outbox table
 			now := time.Now()
 			payload, err := json.Marshal(investor)
-			err = errors.New("paksa")
 			if err != nil {
-				log.Printf("error json marshal: %v", err.Error())
+				log.Printf("[ERROR] Investor Usecase upsertInvestor Marshal: %v", err.Error())
 				return
 			}
 			outBox := model.Outbox{
@@ -141,14 +137,14 @@ func (u *Usecase) upsertInvestors(chanIn <-chan model.Investor) <-chan model.Inv
 			}
 			err = u.repo.UpsertOutbox(ctx, outBox)
 			if err != nil {
-				log.Printf("error save to outbox %v", err.Error())
+				log.Printf("[ERROR] Investor Usecase UpsertOutbox %v", err.Error())
 				return
 			}
 
 			// migrations
 			err = u.repo.UpsertMongo(ctx, investor)
 			if err != nil {
-				log.Printf("error migrations: %v", err.Error())
+				log.Printf("[ERROR] Investor Usecase UpsertMong: %v", err.Error())
 				outBox := model.Outbox{
 					Identifier: investor.ID,
 					Payload:    string(payload),
@@ -159,7 +155,7 @@ func (u *Usecase) upsertInvestors(chanIn <-chan model.Investor) <-chan model.Inv
 				}
 				err = u.repo.UpsertOutbox(ctx, outBox)
 				if err != nil {
-					log.Printf("error save to outbox %v", err.Error())
+					log.Printf("[ERROR] Investor Usecase UpsertOutbox %v", err.Error())
 					return
 				}
 				return
@@ -168,7 +164,7 @@ func (u *Usecase) upsertInvestors(chanIn <-chan model.Investor) <-chan model.Inv
 			// delete outbox
 			err = u.repo.DeleteOutbox(ctx, investor.ID)
 			if err != nil {
-				log.Printf("error save to outbox %v", err.Error())
+				log.Printf("[ERROR] Investor Usecase DeleteOutbox %v", err.Error())
 				return
 			}
 			chanOut <- investor

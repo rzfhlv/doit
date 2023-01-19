@@ -29,19 +29,20 @@ func NewHandler(usecase usecase.IUsecase) IHandler {
 
 func (h *Handler) GetAll(e echo.Context) (err error) {
 	ctx := e.Request().WithContext(context.Background()).Context()
-	filter := utilities.Filter{}
+	param := utilities.Param{}
 
-	err = (&echo.DefaultBinder{}).BindQueryParams(e, &filter)
+	err = (&echo.DefaultBinder{}).BindQueryParams(e, &param)
 	if err != nil {
-		log.Printf("[ERROR] Handler GetAll: %v", err.Error())
+		log.Printf("[ERROR] Handler GetAll BindQueryParam: %v", err.Error())
 		return e.JSON(http.StatusUnprocessableEntity, utilities.SetResponse("error", err.Error(), nil, nil))
 	}
 
-	investors, err := h.usecase.GetAll(ctx, &filter)
+	investors, err := h.usecase.GetAll(ctx, &param)
 	if err != nil {
+		log.Printf("[ERROR] Handler GetAll: %v", err.Error())
 		return e.JSON(http.StatusInternalServerError, utilities.SetResponse("error", "Something went wrong", nil, nil))
 	}
-	meta := utilities.BuildMeta(filter, len(investors))
+	meta := utilities.BuildMeta(param, len(investors))
 	return e.JSON(http.StatusOK, utilities.SetResponse("ok", "success", meta, investors))
 }
 
@@ -50,7 +51,7 @@ func (h *Handler) GetByID(e echo.Context) (err error) {
 	id := e.Param("id")
 	investorId, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
-		log.Printf("[ERROR] Handler GetByID: %v", err.Error())
+		log.Printf("[ERROR] Handler GetByID ParseInt: %v", err.Error())
 		return e.JSON(http.StatusUnprocessableEntity, utilities.SetResponse("error", err.Error(), nil, nil))
 	}
 	investor, err := h.usecase.GetByID(ctx, investorId)
@@ -58,6 +59,7 @@ func (h *Handler) GetByID(e echo.Context) (err error) {
 		if err == sql.ErrNoRows {
 			return e.JSON(http.StatusNotFound, utilities.SetResponse("error", err.Error(), nil, nil))
 		}
+		log.Printf("[ERROR] Handler GetByID: %v", err.Error())
 		return e.JSON(http.StatusInternalServerError, utilities.SetResponse("error", "Something went wrong", nil, nil))
 	}
 	return e.JSON(http.StatusOK, utilities.SetResponse("ok", "success", nil, investor))

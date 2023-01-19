@@ -2,13 +2,12 @@ package main
 
 import (
 	"doit/config"
+	"doit/route"
 	"doit/service"
 	"embed"
 	"fmt"
 
 	_ "github.com/lib/pq"
-
-	"github.com/labstack/echo/v4"
 )
 
 //go:embed migrations/*.sql
@@ -28,11 +27,8 @@ func main() {
 	// load service
 	svc := service.NewService(cfg)
 
-	e := echo.New()
-
-	v1 := e.Group("/v1")
-	v1.GET("/investor", svc.InvestorHandler.GetAll)
-	v1.GET("/investor/:id", svc.InvestorHandler.GetByID)
+	// load route
+	e := route.ListRoute(svc)
 
 	// start cron job
 	// s := gocron.NewScheduler()

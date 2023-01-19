@@ -2,6 +2,8 @@ package config
 
 import (
 	"context"
+	"fmt"
+	"os"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -10,7 +12,7 @@ import (
 func NewMongo() (*mongo.Database, error) {
 	// connect to mongo
 	clientOptions := options.Client()
-	clientOptions.ApplyURI("mongodb://citizix:S3cret@localhost:27017")
+	clientOptions.ApplyURI(fmt.Sprintf("mongodb://%s:%s@%s:%s", os.Getenv("MONGO_USER"), os.Getenv("MONGO_PASSWORD"), os.Getenv("MONGO_HOST"), os.Getenv("MONGO_PORT")))
 	client, err := mongo.NewClient(clientOptions)
 	if err != nil {
 		return nil, err

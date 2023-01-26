@@ -1,19 +1,21 @@
 package seeds
 
 import (
-	"github.com/jmoiron/sqlx"
+	"context"
+	"doit/config"
 )
 
 type ISeed interface {
 	InvestorSeed()
+	OutboxSeed(ctx context.Context)
 }
 
 type Seed struct {
-	db *sqlx.DB
+	cfg *config.Config
 }
 
-func NewSeed(db *sqlx.DB) ISeed {
+func NewSeed(cfg *config.Config) ISeed {
 	return &Seed{
-		db: db,
+		cfg: cfg,
 	}
 }

@@ -19,7 +19,8 @@ func main() {
 	// migrations
 	Migrate(cfg)
 
-	// HandleArgs(db)
+	// for seeders
+	// HandleArgs(cfg)
 
 	// load service
 	svc := service.NewService(cfg)

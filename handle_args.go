@@ -1,14 +1,14 @@
 package main
 
 import (
+	"context"
+	"doit/config"
 	"doit/seeds"
 	"flag"
 	"os"
-
-	"github.com/jmoiron/sqlx"
 )
 
-func HandleArgs(db *sqlx.DB) {
+func HandleArgs(cfg *config.Config) {
 	flag.Parse()
 	args := flag.Args()
 
@@ -16,8 +16,9 @@ func HandleArgs(db *sqlx.DB) {
 		switch args[0] {
 		case "seed":
 
-			seed := seeds.NewSeed(db)
+			seed := seeds.NewSeed(cfg)
 			seed.InvestorSeed()
+			seed.OutboxSeed(context.Background())
 			os.Exit(0)
 		}
 	}

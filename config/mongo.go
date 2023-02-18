@@ -11,8 +11,9 @@ import (
 
 func NewMongo() (*mongo.Database, error) {
 	// connect to mongo
+	uri := fmt.Sprintf("mongodb://%s:%s@%s:%s", os.Getenv("MONGO_USER"), os.Getenv("MONGO_PASSWORD"), os.Getenv("MONGO_HOST"), os.Getenv("MONGO_PORT"))
 	clientOptions := options.Client()
-	clientOptions.ApplyURI(fmt.Sprintf("mongodb://%s:%s@%s:%s", os.Getenv("MONGO_USER"), os.Getenv("MONGO_PASSWORD"), os.Getenv("MONGO_HOST"), os.Getenv("MONGO_PORT")))
+	clientOptions.ApplyURI(uri)
 	client, err := mongo.NewClient(clientOptions)
 	if err != nil {
 		return nil, err

@@ -1,4 +1,4 @@
-package seeds
+package seeders
 
 import (
 	"github.com/bxcodec/faker/v3"

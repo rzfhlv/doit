@@ -1,11 +1,15 @@
-package main
+package database
 
 import (
 	"doit/config"
+	"embed"
 	"log"
 
 	"github.com/pressly/goose/v3"
 )
+
+//go:embed migrations/*.sql
+var embedMigrations embed.FS
 
 func Migrate(cfg *config.Config) {
 	goose.SetBaseFS(embedMigrations)

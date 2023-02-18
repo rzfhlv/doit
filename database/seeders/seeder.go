@@ -1,4 +1,4 @@
-package seeds
+package seeders
 
 import (
 	"context"

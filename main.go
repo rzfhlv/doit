@@ -2,25 +2,28 @@ package main
 
 import (
 	"doit/config"
+	"doit/database"
 	"doit/route"
 	"doit/service"
-	"embed"
+	"flag"
+
+	// "github.com/jasonlvhit/gocron"
 
 	_ "github.com/lib/pq"
 )
 
-//go:embed migrations/*.sql
-var embedMigrations embed.FS
-
 func main() {
+	flag.Parse()
+	args := flag.Args()
+
 	// init config
 	cfg := config.Init()
 
 	// migrations
-	Migrate(cfg)
+	database.Migrate(cfg)
 
-	// for seeders
-	// HandleArgs(cfg)
+	// seeders
+	database.Seed(cfg, args)
 
 	// load service
 	svc := service.NewService(cfg)
@@ -30,7 +33,7 @@ func main() {
 
 	// start cron job
 	// s := gocron.NewScheduler()
-	// s.Every(3).Seconds().Do(svc.Investor.MigrateInvestors, context.Background())
+	// s.Every(10).Seconds().Do(svc.Investor.MigrateInvestors, context.Background())
 	// <-s.Start()
 
 	e.Start(":8090")

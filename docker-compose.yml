@@ -40,6 +40,15 @@ services:
       - ~/data/db/postgres/doit:/var/lib/postgresql/data
     networks:
       - doit
+  
+  adminer:
+    container_name: doit-adminer
+    image: adminer
+    restart: always
+    ports:
+      - "8181:8080"
+    networks:
+      - doit
 
   mongo:
     container_name: doit-mongo

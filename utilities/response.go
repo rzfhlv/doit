@@ -39,3 +39,19 @@ func SetResponse(status string, message string, meta, result interface{}) Respon
 		Result:  result,
 	}
 }
+
+func SuccessResponse(meta, result interface{}) Response {
+	return Response{
+		Status:  "ok",
+		Message: "success",
+		Meta:    meta,
+		Result:  result,
+	}
+}
+
+func ErrorResponse(errStr string) Response {
+	return Response{
+		Status:  "error",
+		Message: errStr,
+	}
+}

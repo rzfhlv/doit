@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"doit/modules/person/usecase"
 	"doit/utilities"
 	"log"
@@ -25,7 +24,7 @@ func NewHandler(usecase usecase.IUsecase) IHandler {
 }
 
 func (h *Handler) GetAll(e echo.Context) (err error) {
-	ctx := e.Request().WithContext(context.Background()).Context()
+	ctx := e.Request().Context()
 	param := utilities.Param{}
 	param.Limit = 10
 	param.Page = 1
@@ -33,14 +32,14 @@ func (h *Handler) GetAll(e echo.Context) (err error) {
 	err = (&echo.DefaultBinder{}).BindQueryParams(e, &param)
 	if err != nil {
 		log.Printf("[ERROR] Handler GetAll BindQueryParam: %v", err.Error())
-		return e.JSON(http.StatusUnprocessableEntity, utilities.SetResponse("error", err.Error(), nil, nil))
+		return e.JSON(http.StatusUnprocessableEntity, utilities.ErrorResponse(err.Error()))
 	}
 
 	persons, err := h.usecase.GetAll(ctx, &param)
 	if err != nil {
 		log.Printf("[ERROR] Handler GetAll: %v", err.Error())
-		return e.JSON(http.StatusInternalServerError, utilities.SetResponse("error", "Something went wrong", nil, nil))
+		return e.JSON(http.StatusInternalServerError, utilities.ErrorResponse("Something went wrong"))
 	}
 	meta := utilities.BuildMeta(param, len(persons))
-	return e.JSON(http.StatusOK, utilities.SetResponse("ok", "success", meta, persons))
+	return e.JSON(http.StatusOK, utilities.SuccessResponse(meta, persons))
 }

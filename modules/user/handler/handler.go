@@ -1,17 +1,21 @@
 package handler
 
 import (
-	"context"
 	"database/sql"
 	"doit/modules/user/model"
 	"doit/modules/user/usecase"
 	"doit/utilities"
+	"errors"
 	"log"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
+)
+
+var (
+	ErrWrongUsernamePassword = errors.New("wrong username or password")
 )
 
 type IHandler interface {
@@ -31,77 +35,77 @@ func NewHandler(usecase usecase.IUsecase) IHandler {
 }
 
 func (h *Handler) Register(e echo.Context) (err error) {
-	ctx := e.Request().WithContext(context.Background()).Context()
+	ctx := e.Request().Context()
 
 	user := model.User{}
 	err = e.Bind(&user)
 	if err != nil {
 		log.Printf("[ERROR] Handler Register Binding: %v", err.Error())
-		return e.JSON(http.StatusUnprocessableEntity, utilities.SetResponse("error", err.Error(), nil, nil))
+		return e.JSON(http.StatusUnprocessableEntity, utilities.ErrorResponse(err))
 	}
 
 	err = e.Validate(user)
 	if err != nil {
 		log.Printf("[ERROR] Handler Register Validation: %v", err.(validator.ValidationErrors))
-		return e.JSON(http.StatusBadRequest, utilities.SetResponse("error", err.Error(), nil, nil))
+		return e.JSON(http.StatusBadRequest, utilities.ErrorResponse(err))
 	}
 
 	result, err := h.usecase.Register(ctx, user)
 	if err != nil {
 		log.Printf("[ERROR] Handler Register Usecase: %v", err.Error())
-		return e.JSON(http.StatusInternalServerError, utilities.SetResponse("error", "Something went wrong", nil, nil))
+		return e.JSON(http.StatusInternalServerError, utilities.ErrorResponse(utilities.ErrSomethingWentWrong))
 	}
-	return e.JSON(http.StatusOK, utilities.SetResponse("ok", "success", nil, result))
+	return e.JSON(http.StatusOK, utilities.SuccessResponse(nil, result))
 }
 
 func (h *Handler) Login(e echo.Context) (err error) {
-	ctx := e.Request().WithContext(context.Background()).Context()
+	ctx := e.Request().Context()
 
 	login := model.Login{}
 	err = e.Bind(&login)
 	if err != nil {
 		log.Printf("[ERROR] Handler Register Binding: %v", err.Error())
-		return e.JSON(http.StatusUnprocessableEntity, utilities.SetResponse("error", err.Error(), nil, nil))
+		return e.JSON(http.StatusUnprocessableEntity, utilities.ErrorResponse(err))
 	}
 
 	err = e.Validate(login)
 	if err != nil {
 		log.Printf("[ERROR] Handler Register Validation: %v", err.(validator.ValidationErrors))
-		return e.JSON(http.StatusBadRequest, utilities.SetResponse("error", err.Error(), nil, nil))
+		return e.JSON(http.StatusBadRequest, utilities.ErrorResponse(err))
 	}
 
 	result, err := h.usecase.Login(ctx, login)
 	if err != nil {
 		if err == sql.ErrNoRows || err == bcrypt.ErrMismatchedHashAndPassword {
 			log.Printf("[ERROR] Handler Register Usecase: %v", err.Error())
-			return e.JSON(http.StatusBadRequest, utilities.SetResponse("error", "Wrong Username or Password", nil, nil))
+			return e.JSON(http.StatusBadRequest, utilities.ErrorResponse(ErrWrongUsernamePassword))
 		}
 		log.Printf("[ERROR] Handler Register Usecase: %v", err.Error())
-		return e.JSON(http.StatusInternalServerError, utilities.SetResponse("error", "Something went wrong", nil, nil))
+		return e.JSON(http.StatusInternalServerError, utilities.ErrorResponse(utilities.ErrSomethingWentWrong))
 	}
-	return e.JSON(http.StatusOK, utilities.SetResponse("ok", "success", nil, result))
+	return e.JSON(http.StatusOK, utilities.SuccessResponse(nil, result))
 }
 
 func (h *Handler) Validate(e echo.Context) (err error) {
-	ctx := e.Request().WithContext(context.Background()).Context()
+	ctx := e.Request().Context()
 
 	validate := model.Validate{}
 	err = e.Bind(&validate)
 	if err != nil {
 		log.Printf("[ERROR] Handler Validate Binding: %v", err.Error())
-		return e.JSON(http.StatusUnprocessableEntity, utilities.SetResponse("error", err.Error(), nil, nil))
+		return e.JSON(http.StatusUnprocessableEntity, utilities.ErrorResponse(err))
 	}
 
 	err = e.Validate(validate)
 	if err != nil {
 		log.Printf("[ERROR] Handler Validate Validation: %v", err.(validator.ValidationErrors))
-		return e.JSON(http.StatusBadRequest, utilities.SetResponse("error", err.Error(), nil, nil))
+		return e.JSON(http.StatusBadRequest, utilities.ErrorResponse(err))
 	}
 
 	result, err := h.usecase.Validate(ctx, validate)
 	if err != nil {
 		log.Printf("[ERROR] Handler Validate Usecase: %v", err.Error())
-		return e.JSON(http.StatusInternalServerError, utilities.SetResponse("error", "Something went wrong", nil, nil))
+		return e.JSON(http.StatusInternalServerError, utilities.ErrorResponse(utilities.ErrSomethingWentWrong))
 	}
-	return e.JSON(http.StatusOK, utilities.SetResponse("ok", "success", nil, result))
+	return e.JSON(http.StatusOK, utilities.SuccessResponse(nil, result))
 }

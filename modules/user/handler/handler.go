@@ -17,6 +17,7 @@ import (
 type IHandler interface {
 	Register(e echo.Context) (err error)
 	Login(e echo.Context) (err error)
+	Validate(e echo.Context) (err error)
 }
 
 type Handler struct {
@@ -76,6 +77,30 @@ func (h *Handler) Login(e echo.Context) (err error) {
 			return e.JSON(http.StatusBadRequest, utilities.SetResponse("error", "Wrong Username or Password", nil, nil))
 		}
 		log.Printf("[ERROR] Handler Register Usecase: %v", err.Error())
+		return e.JSON(http.StatusInternalServerError, utilities.SetResponse("error", "Something went wrong", nil, nil))
+	}
+	return e.JSON(http.StatusOK, utilities.SetResponse("ok", "success", nil, result))
+}
+
+func (h *Handler) Validate(e echo.Context) (err error) {
+	ctx := e.Request().WithContext(context.Background()).Context()
+
+	validate := model.Validate{}
+	err = e.Bind(&validate)
+	if err != nil {
+		log.Printf("[ERROR] Handler Validate Binding: %v", err.Error())
+		return e.JSON(http.StatusUnprocessableEntity, utilities.SetResponse("error", err.Error(), nil, nil))
+	}
+
+	err = e.Validate(validate)
+	if err != nil {
+		log.Printf("[ERROR] Handler Validate Validation: %v", err.(validator.ValidationErrors))
+		return e.JSON(http.StatusBadRequest, utilities.SetResponse("error", err.Error(), nil, nil))
+	}
+
+	result, err := h.usecase.Validate(ctx, validate)
+	if err != nil {
+		log.Printf("[ERROR] Handler Validate Usecase: %v", err.Error())
 		return e.JSON(http.StatusInternalServerError, utilities.SetResponse("error", "Something went wrong", nil, nil))
 	}
 	return e.JSON(http.StatusOK, utilities.SetResponse("ok", "success", nil, result))

@@ -27,6 +27,8 @@ func NewHandler(usecase usecase.IUsecase) IHandler {
 func (h *Handler) GetAll(e echo.Context) (err error) {
 	ctx := e.Request().WithContext(context.Background()).Context()
 	param := utilities.Param{}
+	param.Limit = 10
+	param.Page = 1
 
 	err = (&echo.DefaultBinder{}).BindQueryParams(e, &param)
 	if err != nil {

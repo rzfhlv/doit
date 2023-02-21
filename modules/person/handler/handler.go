@@ -32,13 +32,13 @@ func (h *Handler) GetAll(e echo.Context) (err error) {
 	err = (&echo.DefaultBinder{}).BindQueryParams(e, &param)
 	if err != nil {
 		log.Printf("[ERROR] Handler GetAll BindQueryParam: %v", err.Error())
-		return e.JSON(http.StatusUnprocessableEntity, utilities.ErrorResponse(err.Error()))
+		return e.JSON(http.StatusUnprocessableEntity, utilities.ErrorResponse(err))
 	}
 
 	persons, err := h.usecase.GetAll(ctx, &param)
 	if err != nil {
 		log.Printf("[ERROR] Handler GetAll: %v", err.Error())
-		return e.JSON(http.StatusInternalServerError, utilities.ErrorResponse("Something went wrong"))
+		return e.JSON(http.StatusInternalServerError, utilities.ErrorResponse(utilities.ErrSomethingWentWrong))
 	}
 	meta := utilities.BuildMeta(param, len(persons))
 	return e.JSON(http.StatusOK, utilities.SuccessResponse(meta, persons))

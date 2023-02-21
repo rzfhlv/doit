@@ -35,13 +35,13 @@ func (h *Handler) GetAll(e echo.Context) (err error) {
 	err = (&echo.DefaultBinder{}).BindQueryParams(e, &param)
 	if err != nil {
 		log.Printf("[ERROR] Handler GetAll BindQueryParam: %v", err.Error())
-		return e.JSON(http.StatusUnprocessableEntity, utilities.ErrorResponse(err.Error()))
+		return e.JSON(http.StatusUnprocessableEntity, utilities.ErrorResponse(err))
 	}
 
 	investors, err := h.usecase.GetAll(ctx, &param)
 	if err != nil {
 		log.Printf("[ERROR] Handler GetAll: %v", err.Error())
-		return e.JSON(http.StatusInternalServerError, utilities.ErrorResponse("Something went wrong"))
+		return e.JSON(http.StatusInternalServerError, utilities.ErrorResponse(utilities.ErrSomethingWentWrong))
 	}
 	meta := utilities.BuildMeta(param, len(investors))
 	return e.JSON(http.StatusOK, utilities.SuccessResponse(meta, investors))
@@ -53,15 +53,15 @@ func (h *Handler) GetByID(e echo.Context) (err error) {
 	investorId, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		log.Printf("[ERROR] Handler GetByID ParseInt: %v", err.Error())
-		return e.JSON(http.StatusUnprocessableEntity, utilities.ErrorResponse(err.Error()))
+		return e.JSON(http.StatusUnprocessableEntity, utilities.ErrorResponse(err))
 	}
 	investor, err := h.usecase.GetByID(ctx, investorId)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return e.JSON(http.StatusNotFound, utilities.ErrorResponse(err.Error()))
+			return e.JSON(http.StatusNotFound, utilities.ErrorResponse(err))
 		}
 		log.Printf("[ERROR] Handler GetByID: %v", err.Error())
-		return e.JSON(http.StatusInternalServerError, utilities.ErrorResponse("Something went wrong"))
+		return e.JSON(http.StatusInternalServerError, utilities.ErrorResponse(utilities.ErrSomethingWentWrong))
 	}
 	return e.JSON(http.StatusOK, utilities.SuccessResponse(nil, investor))
 }

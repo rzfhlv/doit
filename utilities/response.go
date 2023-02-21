@@ -49,9 +49,9 @@ func SuccessResponse(meta, result interface{}) Response {
 	}
 }
 
-func ErrorResponse(errStr string) Response {
+func ErrorResponse(err error) Response {
 	return Response{
 		Status:  "error",
-		Message: errStr,
+		Message: err.Error(),
 	}
 }

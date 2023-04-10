@@ -29,7 +29,7 @@ func NewService(cfg *config.Config) *Service {
 	personUsecase := pUsecase.NewUsecase(personRepo)
 	personHandler := pHandler.NewHandler(personUsecase)
 
-	userRepo := uRepo.NewRepository(cfg.Postgres)
+	userRepo := uRepo.NewRepository(cfg.Postgres, cfg.Redis)
 	userUsecase := uUsecase.NewUsecase(userRepo)
 	userHandler := uHandler.NewHandler(userUsecase)
 

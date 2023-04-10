@@ -13,5 +13,6 @@ func Mount(route *echo.Group, h handler.IHandler) (e *echo.Group) {
 	e.POST("/register", h.Register)
 	e.POST("/login", h.Login)
 	e.POST("/validate", h.Validate, auth.AuthBearer)
+	e.POST("/logout", h.Logout, auth.AuthBearer)
 	return
 }

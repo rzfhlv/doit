@@ -1,11 +1,14 @@
 package auth
 
 import (
+	"context"
 	"doit/utilities"
 	"doit/utilities/jwt"
 	"log"
 	"net/http"
 	"strings"
+
+	"doit/config"
 
 	"github.com/labstack/echo/v4"
 )
@@ -38,6 +41,18 @@ func AuthBearer(next echo.HandlerFunc) echo.HandlerFunc {
 		claims, err := jwt.ValidateToken(split[1])
 		if err != nil {
 			log.Printf("[ERROR] Auth Validation Invalid: %v", err.Error())
+			return c.JSON(http.StatusUnauthorized, utilities.SetResponse("error", "Unauthorized", nil, nil))
+		}
+
+		redis, err := config.NewRedis()
+		if err != nil {
+			log.Printf("[ERROR] Auth Redis Not Connected: %v", err.Error())
+			return c.JSON(http.StatusUnauthorized, utilities.SetResponse("error", "Unauthorized", nil, nil))
+		}
+
+		err = redis.Get(context.Background(), split[1]).Err()
+		if err != nil {
+			log.Printf("[ERROR] Auth Redis Key Deleted: %v", err.Error())
 			return c.JSON(http.StatusUnauthorized, utilities.SetResponse("error", "Unauthorized", nil, nil))
 		}
 

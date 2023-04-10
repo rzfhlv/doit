@@ -8,6 +8,7 @@ import (
 	"doit/utilities"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -18,6 +19,7 @@ type IHandler interface {
 	Register(e echo.Context) (err error)
 	Login(e echo.Context) (err error)
 	Validate(e echo.Context) (err error)
+	Logout(e echo.Context) (err error)
 }
 
 type Handler struct {
@@ -104,4 +106,21 @@ func (h *Handler) Validate(e echo.Context) (err error) {
 		return e.JSON(http.StatusInternalServerError, utilities.SetResponse("error", "Something went wrong", nil, nil))
 	}
 	return e.JSON(http.StatusOK, utilities.SetResponse("ok", "success", nil, result))
+}
+
+func (h *Handler) Logout(e echo.Context) (err error) {
+	ctx := e.Request().WithContext(context.Background()).Context()
+
+	split := strings.Split(e.Request().Header.Get("Authorization"), " ")
+	if len(split) < 2 {
+		log.Printf("[ERROR] Handler Split Token Invalid: %v", len(split))
+		return e.JSON(http.StatusUnauthorized, utilities.SetResponse("error", "Unauthorized", nil, nil))
+	}
+
+	err = h.usecase.Logout(ctx, split[1])
+	if err != nil {
+		log.Printf("[ERROR] Handler Logout: %v", len(split))
+		return e.JSON(http.StatusInternalServerError, utilities.SetResponse("error", "Something went wrong", nil, nil))
+	}
+	return e.JSON(http.StatusOK, utilities.SetResponse("ok", "success", nil, nil))
 }

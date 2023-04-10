@@ -7,20 +7,26 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/redis/go-redis/v9"
 )
 
 type IRepository interface {
 	Register(ctx context.Context, user model.User) (result model.User, err error)
 	Login(ctx context.Context, login model.Login) (result model.User, err error)
+	Set(ctx context.Context, key string, value int64, ttl time.Duration) (err error)
+	Get(ctx context.Context, key string) (value int64, err error)
+	Del(ctx context.Context, key string) (err error)
 }
 
 type Repository struct {
-	db *sqlx.DB
+	db    *sqlx.DB
+	redis *redis.Client
 }
 
-func NewRepository(db *sqlx.DB) IRepository {
+func NewRepository(db *sqlx.DB, redis *redis.Client) IRepository {
 	return &Repository{
-		db: db,
+		db:    db,
+		redis: redis,
 	}
 }
 
@@ -37,7 +43,31 @@ func (r *Repository) Register(ctx context.Context, user model.User) (result mode
 func (r *Repository) Login(ctx context.Context, login model.Login) (result model.User, err error) {
 	err = r.db.Get(&result, LoginQuery, login.Username)
 	if err != nil {
-		log.Printf("[ERROR] User Repo Register: %v", err.Error())
+		log.Printf("[ERROR] User Repo Login: %v", err.Error())
+	}
+	return
+}
+
+func (r *Repository) Set(ctx context.Context, key string, value int64, ttl time.Duration) (err error) {
+	err = r.redis.Set(ctx, key, value, ttl).Err()
+	if err != nil {
+		log.Printf("[ERROR] User Repo Set Redis: %v", err.Error())
+	}
+	return
+}
+
+func (r *Repository) Get(ctx context.Context, key string) (value int64, err error) {
+	err = r.redis.Get(ctx, key).Err()
+	if err != nil {
+		log.Printf("[ERROR] User Repo Get Redis: %v", err.Error())
+	}
+	return
+}
+
+func (r *Repository) Del(ctx context.Context, key string) (err error) {
+	err = r.redis.Del(ctx, key).Err()
+	if err != nil {
+		log.Printf("[ERROR] User Repo Del Redis: %v", err.Error())
 	}
 	return
 }

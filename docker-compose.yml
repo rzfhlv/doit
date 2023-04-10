@@ -25,6 +25,7 @@ services:
     depends_on:
       - postgres
       - mongo
+      - redis
     networks:
       - doit
 
@@ -62,6 +63,18 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+    networks:
+      - doit
+
+  redis:
+    container_name: doit-redis
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - "${REDIS_PORT}:6379"
+    command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - ~/data/db/redis/doit:/data
     networks:
       - doit
 

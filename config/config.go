@@ -6,12 +6,14 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
+	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type Config struct {
 	Postgres *sqlx.DB
 	Mongo    *mongo.Database
+	Redis    *redis.Client
 }
 
 func Init() *Config {
@@ -36,8 +38,16 @@ func Init() *Config {
 		os.Exit(1)
 	}
 
+	// connect to redis
+	redis, err := NewRedis()
+	if err != nil {
+		log.Printf("error redis connection: %v", err.Error())
+		os.Exit(1)
+	}
+
 	return &Config{
 		Postgres: psql,
 		Mongo:    mongo,
+		Redis:    redis,
 	}
 }

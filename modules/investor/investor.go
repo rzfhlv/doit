@@ -13,5 +13,6 @@ func Mount(route *echo.Group, h handler.IHandler, am auth.IAuthMiddleware) (e *e
 	e.GET("", h.GetAll)
 	e.GET("/:id", h.GetByID)
 	e.POST("/generate", h.Generate)
+	e.POST("/migrate", h.Migrate)
 	return
 }

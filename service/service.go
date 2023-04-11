@@ -2,6 +2,7 @@ package service
 
 import (
 	"doit/config"
+	aMiddleware "doit/middleware/auth"
 	"doit/modules/investor/handler"
 	"doit/modules/investor/repository"
 	"doit/modules/investor/usecase"
@@ -18,6 +19,7 @@ type Service struct {
 	InvestorHandler handler.IHandler
 	PersonHandler   pHandler.IHandler
 	UserHandler     uHandler.IHandler
+	AuthMiddleware  aMiddleware.IAuthMiddleware
 }
 
 func NewService(cfg *config.Config) *Service {
@@ -33,10 +35,13 @@ func NewService(cfg *config.Config) *Service {
 	userUsecase := uUsecase.NewUsecase(userRepo)
 	userHandler := uHandler.NewHandler(userUsecase)
 
+	authMiddleware := aMiddleware.NewAuthMiddleware(cfg.Redis)
+
 	return &Service{
 		Investor:        investorUsecase,
 		InvestorHandler: investorHandler,
 		PersonHandler:   personHandler,
 		UserHandler:     userHandler,
+		AuthMiddleware:  authMiddleware,
 	}
 }

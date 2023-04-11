@@ -8,21 +8,27 @@ import (
 	"net/http"
 	"strings"
 
-	"doit/config"
-
 	"github.com/labstack/echo/v4"
+	"github.com/redis/go-redis/v9"
 )
 
-func AuthBearer(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		headers := Headers{}
-		err := (&echo.DefaultBinder{}).BindHeaders(c, &headers)
-		if err != nil {
-			log.Println("error middleware")
-			return c.JSON(http.StatusUnprocessableEntity, utilities.SetResponse("error", err.Error(), nil, nil))
-		}
+type IAuthMiddleware interface {
+	AuthBearer(next echo.HandlerFunc) echo.HandlerFunc
+}
 
-		split := strings.Split(headers.Authorization, " ")
+type AuthMiddleware struct {
+	redis *redis.Client
+}
+
+func NewAuthMiddleware(redis *redis.Client) IAuthMiddleware {
+	return &AuthMiddleware{
+		redis: redis,
+	}
+}
+
+func (am *AuthMiddleware) AuthBearer(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		split := strings.Split(c.Request().Header.Get("Authorization"), " ")
 		if len(split) < 2 {
 			log.Printf("[ERROR] Auth Unsupported Token: %v", len(split))
 			return c.JSON(http.StatusUnauthorized, utilities.SetResponse("error", "Unauthorized", nil, nil))
@@ -44,13 +50,7 @@ func AuthBearer(next echo.HandlerFunc) echo.HandlerFunc {
 			return c.JSON(http.StatusUnauthorized, utilities.SetResponse("error", "Unauthorized", nil, nil))
 		}
 
-		redis, err := config.NewRedis()
-		if err != nil {
-			log.Printf("[ERROR] Auth Redis Not Connected: %v", err.Error())
-			return c.JSON(http.StatusUnauthorized, utilities.SetResponse("error", "Unauthorized", nil, nil))
-		}
-
-		err = redis.Get(context.Background(), split[1]).Err()
+		err = am.redis.Get(context.Background(), split[1]).Err()
 		if err != nil {
 			log.Printf("[ERROR] Auth Redis Key Deleted: %v", err.Error())
 			return c.JSON(http.StatusUnauthorized, utilities.SetResponse("error", "Unauthorized", nil, nil))

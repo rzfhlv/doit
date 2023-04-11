@@ -21,6 +21,7 @@ type IRepository interface {
 	GetAll(ctx context.Context, param utilities.Param) (investors []model.Investor, err error)
 	GetByID(ctx context.Context, id int64) (investor model.Investor, err error)
 	Count(ctx context.Context) (total int64, err error)
+	Generate(ctx context.Context, name string) (err error)
 }
 
 type Repository struct {
@@ -119,6 +120,14 @@ func (r *Repository) Count(ctx context.Context) (total int64, err error) {
 	err = r.db.Get(&total, `SELECT count(*) FROM investors;`)
 	if err != nil {
 		log.Printf("[ERROR] Repo Count: %v", err.Error())
+	}
+	return
+}
+
+func (r *Repository) Generate(ctx context.Context, name string) (err error) {
+	_, err = r.db.Exec(`INSERT INTO investors (name) VALUES ($1) RETURNING id;`, name)
+	if err != nil {
+		log.Printf("[ERROR] Repo Generate: %v", err.Error())
 	}
 	return
 }

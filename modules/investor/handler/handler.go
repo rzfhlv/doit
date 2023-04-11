@@ -15,6 +15,7 @@ import (
 type IHandler interface {
 	GetAll(e echo.Context) (err error)
 	GetByID(e echo.Context) (err error)
+	Generate(e echo.Context) (err error)
 }
 
 type Handler struct {
@@ -65,4 +66,15 @@ func (h *Handler) GetByID(e echo.Context) (err error) {
 		return e.JSON(http.StatusInternalServerError, utilities.SetResponse("error", "Something went wrong", nil, nil))
 	}
 	return e.JSON(http.StatusOK, utilities.SetResponse("ok", "success", nil, investor))
+}
+
+func (h *Handler) Generate(e echo.Context) (err error) {
+	ctx := e.Request().WithContext(context.Background()).Context()
+
+	err = h.usecase.Generate(ctx)
+	if err != nil {
+		log.Printf("[ERROR] Handler Generate: %v", err.Error())
+		return e.JSON(http.StatusInternalServerError, utilities.SetResponse("error", "Something went wrong", nil, nil))
+	}
+	return e.JSON(http.StatusOK, utilities.SetResponse("ok", "success", nil, nil))
 }

@@ -10,6 +10,8 @@ import (
 	"log"
 	"sync"
 	"time"
+
+	"github.com/bxcodec/faker/v3"
 )
 
 type IUsecase interface {
@@ -17,6 +19,7 @@ type IUsecase interface {
 	ConventionalMigrate(ctx context.Context) error
 	GetAll(ctx context.Context, param *utilities.Param) (investors []model.Investor, err error)
 	GetByID(ctx context.Context, id int64) (investor model.Investor, err error)
+	Generate(ctx context.Context) (err error)
 }
 
 type Usecase struct {
@@ -195,4 +198,16 @@ func mergeChanInvestor(chanInMany ...<-chan model.Investor) <-chan model.Investo
 	}()
 
 	return chanOut
+}
+
+func (u *Usecase) Generate(ctx context.Context) (err error) {
+	for i := 1; i <= 1000; i++ {
+		name := faker.Name()
+		err = u.repo.Generate(ctx, name)
+		if err != nil {
+			log.Printf("[ERROR] Investor Usecase Generate: %v", err.Error())
+			break
+		}
+	}
+	return
 }

@@ -1,6 +1,7 @@
 package route
 
 import (
+	healthCheck "doit/modules/health-check"
 	"doit/modules/investor"
 	"doit/modules/person"
 	"doit/modules/user"
@@ -27,6 +28,7 @@ func ListRoute(svc *service.Service) (e *echo.Echo) {
 	user.Mount(route, svc.UserHandler, svc.AuthMiddleware)
 	investor.Mount(route, svc.InvestorHandler, svc.AuthMiddleware)
 	person.Mount(route, svc.PersonHandler, svc.AuthMiddleware)
+	healthCheck.Mount(route, svc.HelathCheckHandler)
 
 	return
 }

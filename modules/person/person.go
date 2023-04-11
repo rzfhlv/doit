@@ -7,9 +7,9 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func Mount(route *echo.Group, h handler.IHandler) (e *echo.Group) {
+func Mount(route *echo.Group, h handler.IHandler, am auth.IAuthMiddleware) (e *echo.Group) {
 	e = route.Group("/persons")
-	e.Use(auth.AuthBearer)
+	e.Use(am.AuthBearer)
 	e.GET("", h.GetAll)
 	return
 }

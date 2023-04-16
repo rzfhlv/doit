@@ -11,5 +11,6 @@ func Mount(route *echo.Group, h handler.IHandler, am auth.IAuthMiddleware) (e *e
 	e = route.Group("/persons")
 	e.Use(am.AuthBearer)
 	e.GET("", h.GetAll)
+	e.GET("/:id", h.GetByID)
 	return
 }

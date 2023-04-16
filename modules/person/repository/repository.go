@@ -13,6 +13,7 @@ import (
 
 type IRepository interface {
 	GetAll(ctx context.Context, filter utilities.Param) (persons []model.Person, err error)
+	GetByID(ctx context.Context, id int64) (person model.Person, err error)
 	Count(ctx context.Context) (total int64, err error)
 }
 
@@ -41,8 +42,20 @@ func (r *Repository) GetAll(ctx context.Context, param utilities.Param) (persons
 
 	for cursor.Next(ctx) {
 		var person model.Person
-		cursor.Decode(&person)
+		err = cursor.Decode(&person)
+		if err != nil {
+			log.Printf("[ERROR] Person Repo Cursor Decode: %v", err.Error())
+			return
+		}
 		persons = append(persons, person)
+	}
+	return
+}
+
+func (r *Repository) GetByID(ctx context.Context, id int64) (person model.Person, err error) {
+	err = r.dbMongo.Collection("investors").FindOne(ctx, bson.M{"id": id}).Decode(&person)
+	if err != nil {
+		log.Printf("[ERROR] Person Repo GetAll: %v", err.Error())
 	}
 	return
 }

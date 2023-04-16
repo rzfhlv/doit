@@ -60,10 +60,10 @@ func (h *Handler) GetByID(e echo.Context) (err error) {
 	}
 	investor, err := h.usecase.GetByID(ctx, investorId)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return e.JSON(http.StatusNotFound, utilities.SetResponse("error", err.Error(), nil, nil))
-		}
 		log.Printf("[ERROR] Handler GetByID: %v", err.Error())
+		if err == sql.ErrNoRows {
+			return e.JSON(http.StatusNotFound, utilities.SetResponse("error", "Not found", nil, nil))
+		}
 		return e.JSON(http.StatusInternalServerError, utilities.SetResponse("error", "Something went wrong", nil, nil))
 	}
 	return e.JSON(http.StatusOK, utilities.SetResponse("ok", "success", nil, investor))

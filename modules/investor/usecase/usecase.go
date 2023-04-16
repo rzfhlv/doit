@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"database/sql"
 	"doit/modules/investor/model"
 	"doit/modules/investor/repository"
 	"doit/utilities"
@@ -53,10 +52,6 @@ func (u *Usecase) GetByID(ctx context.Context, id int64) (investor model.Investo
 	investor, err = u.repo.GetByID(ctx, id)
 	if err != nil {
 		log.Printf("[ERROR] Investor Usecase GetByID: %v", err.Error())
-		if err != sql.ErrNoRows {
-			return
-		}
-		err = nil
 	}
 	return
 }

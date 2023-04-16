@@ -10,6 +10,7 @@ import (
 
 type IUsecase interface {
 	GetAll(ctx context.Context, param *utilities.Param) (persons []model.Person, err error)
+	GetByID(ctx context.Context, id int64) (person model.Person, err error)
 }
 
 type Usecase struct {
@@ -25,7 +26,7 @@ func NewUsecase(repo repository.IRepository) IUsecase {
 func (u *Usecase) GetAll(ctx context.Context, param *utilities.Param) (persons []model.Person, err error) {
 	persons, err = u.repo.GetAll(ctx, *param)
 	if err != nil {
-		log.Printf("[ERROR] Usecase GetAll: %v", err.Error())
+		log.Printf("[ERROR] Person Usecase GetAll: %v", err.Error())
 		return
 	}
 	if len(persons) < 1 {
@@ -37,5 +38,13 @@ func (u *Usecase) GetAll(ctx context.Context, param *utilities.Param) (persons [
 		log.Printf("[ERROR] Person Usecase Count: %v", err.Error())
 	}
 	param.Total = total
+	return
+}
+
+func (u *Usecase) GetByID(ctx context.Context, id int64) (person model.Person, err error) {
+	person, err = u.repo.GetByID(ctx, id)
+	if err != nil {
+		log.Printf("[ERROR] Person Usecase GetByID: %v", err.Error())
+	}
 	return
 }

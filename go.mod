@@ -1,6 +1,6 @@
 module doit
 
-go 1.18
+go 1.19
 
 require (
 	github.com/bxcodec/faker/v3 v3.8.1
@@ -8,6 +8,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/lib/pq v1.10.7
 	github.com/pressly/goose/v3 v3.7.0
+	github.com/redis/go-redis/v9 v9.0.3
 	go.mongodb.org/mongo-driver v1.11.1
 )
 
@@ -20,7 +21,6 @@ require (
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
-	github.com/redis/go-redis/v9 v9.0.3 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	golang.org/x/net v0.5.0 // indirect

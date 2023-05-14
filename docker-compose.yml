@@ -6,8 +6,10 @@ services:
     build:
       dockerfile: Dockerfile
       context: .
+      args:
+       - APP_PORT="${APP_PORT}"
     ports:
-      - "8090:8090"
+      - "${APP_PORT}:8090"
     environment:
       APP_NAME: ${APP_NAME}
       DB_HOST: postgres

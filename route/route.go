@@ -25,10 +25,10 @@ func ListRoute(svc *service.Service) (e *echo.Echo) {
 
 	route := e.Group("/v1")
 
-	user.Mount(route, svc.UserHandler, svc.Middleware.AuthMiddleware)
-	investor.Mount(route, svc.InvestorHandler, svc.Middleware.AuthMiddleware)
-	person.Mount(route, svc.PersonHandler, svc.Middleware.AuthMiddleware)
-	healthCheck.Mount(route, svc.HelathCheckHandler)
+	user.Mount(route, svc.User.Handler, svc.Middleware.Auth)
+	investor.Mount(route, svc.Investor.Handler, svc.Middleware.Auth)
+	person.Mount(route, svc.Person.Handler, svc.Middleware.Auth)
+	healthCheck.Mount(route, svc.HealthCheck.Handler)
 
 	return
 }

@@ -12,21 +12,21 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-type IAuthMiddleware interface {
-	AuthBearer(next echo.HandlerFunc) echo.HandlerFunc
+type IAuth interface {
+	Bearer(next echo.HandlerFunc) echo.HandlerFunc
 }
 
-type AuthMiddleware struct {
+type Auth struct {
 	redis *redis.Client
 }
 
-func NewAuthMiddleware(redis *redis.Client) IAuthMiddleware {
-	return &AuthMiddleware{
+func NewAuth(redis *redis.Client) IAuth {
+	return &Auth{
 		redis: redis,
 	}
 }
 
-func (am *AuthMiddleware) AuthBearer(next echo.HandlerFunc) echo.HandlerFunc {
+func (am *Auth) Bearer(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		split := strings.Split(c.Request().Header.Get("Authorization"), " ")
 		if len(split) < 2 {

@@ -1,6 +1,8 @@
 # Start from golang base image
 FROM golang:alpine as builder
 
+ARG APP_PORT
+
 # ENV GO111MODULE=on
 
 # Add Maintainer info
@@ -27,6 +29,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
 
 # Start a new stage from scratch
 FROM alpine:latest
+
 RUN apk --no-cache add ca-certificates
 
 WORKDIR /root/
@@ -35,8 +38,8 @@ WORKDIR /root/
 COPY --from=builder /app/main .
 COPY --from=builder /app/.env .       
 
-# Expose port 8080 to the outside world
-EXPOSE 8090
+# Expose port to the outside world
+EXPOSE $APP_PORT
 
 #Command to run the executable
 CMD ["./main"]

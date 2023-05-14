@@ -24,5 +24,5 @@ func NewMongo() (*mongo.Database, error) {
 		return nil, err
 	}
 
-	return client.Database("doit"), nil
+	return client.Database(os.Getenv("MONGO_DB")), nil
 }

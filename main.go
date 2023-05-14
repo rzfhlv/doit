@@ -6,6 +6,8 @@ import (
 	"doit/route"
 	"doit/service"
 	"flag"
+	"fmt"
+	"os"
 
 	// "github.com/jasonlvhit/gocron"
 
@@ -36,5 +38,5 @@ func main() {
 	// s.Every(10).Seconds().Do(svc.Investor.MigrateInvestors, context.Background())
 	// <-s.Start()
 
-	e.Start(":8090")
+	e.Start(fmt.Sprintf(":%s", os.Getenv("APP_PORT")))
 }

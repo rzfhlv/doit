@@ -1,19 +1,19 @@
 package middleware
 
 import (
-	aMiddleware "doit/middleware/auth"
+	"doit/middleware/auth"
 
 	"github.com/redis/go-redis/v9"
 )
 
 type Middleware struct {
-	AuthMiddleware aMiddleware.IAuthMiddleware
+	Auth auth.IAuth
 }
 
 func NewMiddleware(redis *redis.Client) *Middleware {
-	authMiddleware := aMiddleware.NewAuthMiddleware(redis)
+	auth := auth.NewAuth(redis)
 
 	return &Middleware{
-		AuthMiddleware: authMiddleware,
+		Auth: auth,
 	}
 }

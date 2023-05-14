@@ -2,7 +2,7 @@ package service
 
 import (
 	"doit/config"
-	aMiddleware "doit/middleware/auth"
+	"doit/middleware"
 	hcHandler "doit/modules/health-check/handler"
 	hcRepo "doit/modules/health-check/repository"
 	hcUsecase "doit/modules/health-check/usecase"
@@ -23,7 +23,7 @@ type Service struct {
 	PersonHandler      pHandler.IHandler
 	UserHandler        uHandler.IHandler
 	HelathCheckHandler hcHandler.IHandler
-	AuthMiddleware     aMiddleware.IAuthMiddleware
+	Middleware         *middleware.Middleware
 }
 
 func NewService(cfg *config.Config) *Service {
@@ -43,7 +43,7 @@ func NewService(cfg *config.Config) *Service {
 	healthCheckUsecase := hcUsecase.NewUsecase(healthCheckRepo)
 	healtCheckHandler := hcHandler.NewHandler(healthCheckUsecase)
 
-	authMiddleware := aMiddleware.NewAuthMiddleware(cfg.Redis)
+	middleware := middleware.NewMiddleware(cfg.Redis)
 
 	return &Service{
 		Investor:           investorUsecase,
@@ -51,6 +51,6 @@ func NewService(cfg *config.Config) *Service {
 		PersonHandler:      personHandler,
 		UserHandler:        userHandler,
 		HelathCheckHandler: healtCheckHandler,
-		AuthMiddleware:     authMiddleware,
+		Middleware:         middleware,
 	}
 }

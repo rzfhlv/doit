@@ -4,8 +4,10 @@ import (
 	"context"
 	"doit/modules/health-check/usecase"
 	"doit/utilities"
-	"log"
+	"fmt"
 	"net/http"
+
+	logrus "doit/utilities/log"
 
 	"github.com/labstack/echo/v4"
 )
@@ -29,7 +31,7 @@ func (h *Handler) HealthCheck(e echo.Context) (err error) {
 
 	err = h.usecase.HealthCheck(ctx)
 	if err != nil {
-		log.Printf("[ERROR] Handler Health Check: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("Health Check Handler, %v", err.Error()))
 		return e.JSON(http.StatusInternalServerError, utilities.SetResponse("error", "Something went wrong", nil, nil))
 	}
 	return e.JSON(http.StatusOK, utilities.SetResponse("ok", "I'm health", nil, nil))

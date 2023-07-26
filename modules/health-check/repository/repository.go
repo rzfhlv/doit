@@ -2,7 +2,9 @@ package repository
 
 import (
 	"context"
-	"log"
+	"fmt"
+
+	logrus "doit/utilities/log"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/redis/go-redis/v9"
@@ -33,7 +35,7 @@ func NewRepository(db *sqlx.DB, dbMongo *mongo.Database, redis *redis.Client) IR
 func (r *Repository) Ping(ctx context.Context) (err error) {
 	err = r.db.Ping()
 	if err != nil {
-		log.Printf("[ERROR] Health Check Repo Postgres Ping: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("Health Check Repo Postgres Ping, %v", err.Error()))
 	}
 	return
 }
@@ -41,7 +43,7 @@ func (r *Repository) Ping(ctx context.Context) (err error) {
 func (r *Repository) MongoPing(ctx context.Context) (err error) {
 	err = r.dbMongo.Client().Ping(ctx, readpref.Primary())
 	if err != nil {
-		log.Printf("[ERROR] Health Check Repo Mongo Ping: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("Health Check Repo Mongo Ping, %v", err.Error()))
 	}
 	return
 }
@@ -49,7 +51,7 @@ func (r *Repository) MongoPing(ctx context.Context) (err error) {
 func (r *Repository) RedisPing(ctx context.Context) (err error) {
 	err = r.redis.Ping(ctx).Err()
 	if err != nil {
-		log.Printf("[ERROR] Health Check Repo Redis Ping: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("Health Check Repo Redis Ping, %v", err.Error()))
 	}
 	return
 }

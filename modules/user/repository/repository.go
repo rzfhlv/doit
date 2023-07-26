@@ -3,8 +3,11 @@ package repository
 import (
 	"context"
 	"doit/modules/user/model"
+	"fmt"
 	"log"
 	"time"
+
+	logrus "doit/utilities/log"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/redis/go-redis/v9"
@@ -34,7 +37,7 @@ func (r *Repository) Register(ctx context.Context, user model.User) (result mode
 	now := time.Now()
 	err = r.db.Get(&result, RegisterQuery, user.Name, user.Email, user.Username, user.Password, now)
 	if err != nil {
-		log.Printf("[ERROR] User Repo Register: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("User Repo Register, %v", err.Error()))
 	}
 
 	return
@@ -43,7 +46,7 @@ func (r *Repository) Register(ctx context.Context, user model.User) (result mode
 func (r *Repository) Login(ctx context.Context, login model.Login) (result model.User, err error) {
 	err = r.db.Get(&result, LoginQuery, login.Username)
 	if err != nil {
-		log.Printf("[ERROR] User Repo Login: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("User Repo Login, %v", err.Error()))
 	}
 	return
 }
@@ -51,7 +54,7 @@ func (r *Repository) Login(ctx context.Context, login model.Login) (result model
 func (r *Repository) Set(ctx context.Context, key string, value int64, ttl time.Duration) (err error) {
 	err = r.redis.Set(ctx, key, value, ttl).Err()
 	if err != nil {
-		log.Printf("[ERROR] User Repo Set Redis: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("User Repo Set Redis, %v", err.Error()))
 	}
 	return
 }
@@ -59,7 +62,7 @@ func (r *Repository) Set(ctx context.Context, key string, value int64, ttl time.
 func (r *Repository) Get(ctx context.Context, key string) (value int64, err error) {
 	err = r.redis.Get(ctx, key).Err()
 	if err != nil {
-		log.Printf("[ERROR] User Repo Get Redis: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("User Repo Get Redis, %v", err.Error()))
 	}
 	return
 }
@@ -68,6 +71,7 @@ func (r *Repository) Del(ctx context.Context, key string) (err error) {
 	err = r.redis.Del(ctx, key).Err()
 	if err != nil {
 		log.Printf("[ERROR] User Repo Del Redis: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("User Repo Del Redis, %v", err.Error()))
 	}
 	return
 }

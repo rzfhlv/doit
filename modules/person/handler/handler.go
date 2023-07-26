@@ -4,9 +4,11 @@ import (
 	"context"
 	"doit/modules/person/usecase"
 	"doit/utilities"
-	"log"
+	"fmt"
 	"net/http"
 	"strconv"
+
+	logrus "doit/utilities/log"
 
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -35,13 +37,13 @@ func (h *Handler) GetAll(e echo.Context) (err error) {
 
 	err = (&echo.DefaultBinder{}).BindQueryParams(e, &param)
 	if err != nil {
-		log.Printf("[ERROR] Handler GetAll BindQueryParam: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("Person Handler GetAll BindQueryParam, %v", err.Error()))
 		return e.JSON(http.StatusUnprocessableEntity, utilities.SetResponse("error", err.Error(), nil, nil))
 	}
 
 	persons, err := h.usecase.GetAll(ctx, &param)
 	if err != nil {
-		log.Printf("[ERROR] Handler GetAll: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("Person Handler GetAll, %v", err.Error()))
 		return e.JSON(http.StatusInternalServerError, utilities.SetResponse("error", "Something went wrong", nil, nil))
 	}
 	meta := utilities.BuildMeta(param, len(persons))
@@ -53,12 +55,12 @@ func (h *Handler) GetByID(e echo.Context) (err error) {
 	id := e.Param("id")
 	personId, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
-		log.Printf("[ERROR] Handler GetByID ParseInt: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("Person Handler GetByID ParseInt, %v", err.Error()))
 		return e.JSON(http.StatusUnprocessableEntity, utilities.SetResponse("error", err.Error(), nil, nil))
 	}
 	person, err := h.usecase.GetByID(ctx, personId)
 	if err != nil {
-		log.Printf("[ERROR] Handler GetByID: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("Person Handler GetByID, %v", err.Error()))
 		if err == mongo.ErrNoDocuments {
 			return e.JSON(http.StatusNotFound, utilities.SetResponse("error", "Not found", nil, nil))
 		}

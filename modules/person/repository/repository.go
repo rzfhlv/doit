@@ -4,7 +4,9 @@ import (
 	"context"
 	"doit/modules/person/model"
 	"doit/utilities"
-	"log"
+	"fmt"
+
+	logrus "doit/utilities/log"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -35,7 +37,7 @@ func (r *Repository) GetAll(ctx context.Context, param utilities.Param) (persons
 
 	cursor, err := r.dbMongo.Collection("investors").Find(ctx, bson.M{}, findOptions)
 	if err != nil {
-		log.Printf("[ERROR] Person Repo GetAll: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("Person Repo GetAll, %v", err.Error()))
 		return
 	}
 	defer cursor.Close(ctx)
@@ -44,7 +46,7 @@ func (r *Repository) GetAll(ctx context.Context, param utilities.Param) (persons
 		var person model.Person
 		err = cursor.Decode(&person)
 		if err != nil {
-			log.Printf("[ERROR] Person Repo Cursor Decode: %v", err.Error())
+			logrus.Log(nil).Error(fmt.Sprintf("Person Repo Cursor Decode, %v", err.Error()))
 			return
 		}
 		persons = append(persons, person)
@@ -55,7 +57,7 @@ func (r *Repository) GetAll(ctx context.Context, param utilities.Param) (persons
 func (r *Repository) GetByID(ctx context.Context, id int64) (person model.Person, err error) {
 	err = r.dbMongo.Collection("investors").FindOne(ctx, bson.M{"id": id}).Decode(&person)
 	if err != nil {
-		log.Printf("[ERROR] Person Repo GetAll: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("Person Repo GetAll, %v", err.Error()))
 	}
 	return
 }
@@ -63,7 +65,7 @@ func (r *Repository) GetByID(ctx context.Context, id int64) (person model.Person
 func (r *Repository) Count(ctx context.Context) (total int64, err error) {
 	total, err = r.dbMongo.Collection("investors").CountDocuments(ctx, bson.M{})
 	if err != nil {
-		log.Printf("[ERROR] Person Repo Count: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("Person Repo Count, %v", err.Error()))
 	}
 	return
 }

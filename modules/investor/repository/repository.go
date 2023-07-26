@@ -4,7 +4,9 @@ import (
 	"context"
 	"doit/modules/investor/model"
 	"doit/utilities"
-	"log"
+	"fmt"
+
+	logrus "doit/utilities/log"
 
 	"github.com/jmoiron/sqlx"
 	"go.mongodb.org/mongo-driver/bson"
@@ -39,7 +41,7 @@ func NewRepository(db *sqlx.DB, dbMongo *mongo.Database) IRepository {
 func (r *Repository) SaveMongo(ctx context.Context, investor model.Investor) error {
 	_, err := r.dbMongo.Collection("investors").InsertOne(ctx, investor)
 	if err != nil {
-		log.Printf("[ERROR] Investor Repo SaveMongo: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("Investor Repo SaveMongo, %v", err.Error()))
 		return err
 	}
 	return nil
@@ -49,7 +51,7 @@ func (r *Repository) GetPsql(ctx context.Context) ([]model.Investor, error) {
 	investors := []model.Investor{}
 	err := r.db.Select(&investors, "SELECT * FROM investors")
 	if err != nil {
-		log.Printf("[ERROR] Investor Repo GetPsql: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("Investor Repo GetPsql, %v", err.Error()))
 		return nil, err
 	}
 	return investors, nil
@@ -67,7 +69,7 @@ func (r *Repository) UpsertMongo(ctx context.Context, investor model.Investor) e
 				Upsert: options.Update().SetUpsert(true).Upsert,
 			})
 	if err != nil {
-		log.Printf("[ERROR] Investor Repo UpsertMongo: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("Investor Repo UpsertMongo, %v", err.Error()))
 		return err
 	}
 	return nil
@@ -85,7 +87,7 @@ func (r *Repository) UpsertOutbox(ctx context.Context, outbox model.Outbox) erro
 				Upsert: options.Update().SetUpsert(true).Upsert,
 			})
 	if err != nil {
-		log.Printf("[ERROR] Investor Repo UpsertOutbox: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("Investor Repo UpsertOutbox, %v", err.Error()))
 		return err
 	}
 	return nil
@@ -94,7 +96,7 @@ func (r *Repository) UpsertOutbox(ctx context.Context, outbox model.Outbox) erro
 func (r *Repository) DeleteOutbox(ctx context.Context, identifier int64) error {
 	_, err := r.dbMongo.Collection("outbox").DeleteOne(ctx, bson.M{"identifier": identifier})
 	if err != nil {
-		log.Printf("[ERROR] Investor Repo DeleteOutbox: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("Investor Repo DeleteOutbox, %v", err.Error()))
 		return err
 	}
 	return nil
@@ -103,7 +105,7 @@ func (r *Repository) DeleteOutbox(ctx context.Context, identifier int64) error {
 func (r *Repository) GetAll(ctx context.Context, param utilities.Param) (investors []model.Investor, err error) {
 	err = r.db.Select(&investors, `SELECT * FROM investors ORDER BY investors.id DESC LIMIT $1 OFFSET $2;`, param.Limit, param.CalculateOffset())
 	if err != nil {
-		log.Printf("[ERROR] Repo GetAll: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("Investor Repo GetAll, %v", err.Error()))
 	}
 	return
 }
@@ -111,7 +113,7 @@ func (r *Repository) GetAll(ctx context.Context, param utilities.Param) (investo
 func (r *Repository) GetByID(ctx context.Context, id int64) (investor model.Investor, err error) {
 	err = r.db.Get(&investor, `SELECT * FROM investors WHERE id = $1;`, id)
 	if err != nil {
-		log.Printf("[ERROR] Repo GetByID: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("Investor Repo GetByID, %v", err.Error()))
 	}
 	return
 }
@@ -119,7 +121,7 @@ func (r *Repository) GetByID(ctx context.Context, id int64) (investor model.Inve
 func (r *Repository) Count(ctx context.Context) (total int64, err error) {
 	err = r.db.Get(&total, `SELECT count(*) FROM investors;`)
 	if err != nil {
-		log.Printf("[ERROR] Repo Count: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("Investor Repo Count, %v", err.Error()))
 	}
 	return
 }
@@ -127,7 +129,7 @@ func (r *Repository) Count(ctx context.Context) (total int64, err error) {
 func (r *Repository) Generate(ctx context.Context, name string) (err error) {
 	_, err = r.db.Exec(`INSERT INTO investors (name) VALUES ($1) RETURNING id;`, name)
 	if err != nil {
-		log.Printf("[ERROR] Repo Generate: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("Investor Repo Generate, %v", err.Error()))
 	}
 	return
 }

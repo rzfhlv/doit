@@ -6,9 +6,11 @@ import (
 	"doit/modules/investor/repository"
 	"doit/utilities"
 	"encoding/json"
-	"log"
+	"fmt"
 	"sync"
 	"time"
+
+	logrus "doit/utilities/log"
 
 	"github.com/bxcodec/faker/v3"
 )
@@ -34,7 +36,7 @@ func NewUsecase(repo repository.IRepository) IUsecase {
 func (u *Usecase) GetAll(ctx context.Context, param *utilities.Param) (investors []model.Investor, err error) {
 	investors, err = u.repo.GetAll(ctx, *param)
 	if err != nil {
-		log.Printf("[ERROR] Investor Usecase GetAll: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("Investor Usecase GetAll, %v", err.Error()))
 		return
 	}
 	if len(investors) < 1 {
@@ -42,7 +44,7 @@ func (u *Usecase) GetAll(ctx context.Context, param *utilities.Param) (investors
 	}
 	total, err := u.repo.Count(ctx)
 	if err != nil {
-		log.Printf("[ERROR] Investor Usecase GetAll Count: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("Investor Usecase GetAll Count, %v", err.Error()))
 	}
 	param.Total = total
 	return
@@ -51,7 +53,7 @@ func (u *Usecase) GetAll(ctx context.Context, param *utilities.Param) (investors
 func (u *Usecase) GetByID(ctx context.Context, id int64) (investor model.Investor, err error) {
 	investor, err = u.repo.GetByID(ctx, id)
 	if err != nil {
-		log.Printf("[ERROR] Investor Usecase GetByID: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("Investor Usecase GetByID, %v", err.Error()))
 	}
 	return
 }
@@ -59,13 +61,13 @@ func (u *Usecase) GetByID(ctx context.Context, id int64) (investor model.Investo
 func (u *Usecase) ConventionalMigrate(ctx context.Context) error {
 	investors, err := u.repo.GetPsql(ctx)
 	if err != nil {
-		log.Printf("[ERROR] Investor ConventionalMigrate: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("Investor ConventionalMigrate, %v", err.Error()))
 		return err
 	}
 	for _, investor := range investors {
 		err = u.repo.UpsertMongo(ctx, investor)
 		if err != nil {
-			log.Printf("error update mongo")
+			logrus.Log(nil).Error(fmt.Sprintf("Upsert Mongo ConventionalMigrate, %v", err.Error()))
 			return err
 		}
 	}
@@ -88,7 +90,7 @@ func (u *Usecase) MigrateInvestors(ctx context.Context) error {
 			counterTotal++
 		}
 	}
-	log.Printf("[INFO] Investor Usecase MigrateInvestors: %d Data Migrated", counterTotal)
+	logrus.Log(nil).Info(fmt.Sprintf("Investor Usecase MigrateInvestors, %d Data Migrated", counterTotal))
 
 	return nil
 }
@@ -99,7 +101,7 @@ func (u *Usecase) getInvestors() <-chan model.Investor {
 	go func() {
 		investors, err := u.repo.GetPsql(context.Background())
 		if err != nil {
-			log.Printf("[ERROR] Investor Usecase getInvestors: %v", err.Error())
+			logrus.Log(nil).Error(fmt.Sprintf("Investor Usecase getInvestors, %v", err.Error()))
 			return
 		}
 		for _, investor := range investors {
@@ -122,7 +124,7 @@ func (u *Usecase) upsertInvestors(chanIn <-chan model.Investor) <-chan model.Inv
 			now := time.Now()
 			payload, err := json.Marshal(investor)
 			if err != nil {
-				log.Printf("[ERROR] Investor Usecase upsertInvestor Marshal: %v", err.Error())
+				logrus.Log(nil).Error(fmt.Sprintf("Investor Usecase upsertInvestor Marshal, %v", err.Error()))
 				return
 			}
 			outBox := model.Outbox{
@@ -135,14 +137,14 @@ func (u *Usecase) upsertInvestors(chanIn <-chan model.Investor) <-chan model.Inv
 			}
 			err = u.repo.UpsertOutbox(ctx, outBox)
 			if err != nil {
-				log.Printf("[ERROR] Investor Usecase UpsertOutbox %v", err.Error())
+				logrus.Log(nil).Error(fmt.Sprintf("Investor Usecase UpsertOutbox, %v", err.Error()))
 				return
 			}
 
 			// migrations
 			err = u.repo.UpsertMongo(ctx, investor)
 			if err != nil {
-				log.Printf("[ERROR] Investor Usecase UpsertMong: %v", err.Error())
+				logrus.Log(nil).Error(fmt.Sprintf("Investor Usecase UpsertMong, %v", err.Error()))
 				outBox := model.Outbox{
 					Identifier: investor.ID,
 					Payload:    string(payload),
@@ -153,7 +155,7 @@ func (u *Usecase) upsertInvestors(chanIn <-chan model.Investor) <-chan model.Inv
 				}
 				err = u.repo.UpsertOutbox(ctx, outBox)
 				if err != nil {
-					log.Printf("[ERROR] Investor Usecase UpsertOutbox %v", err.Error())
+					logrus.Log(nil).Error(fmt.Sprintf("Investor Usecase UpsertOutbox, %v", err.Error()))
 					return
 				}
 				return
@@ -162,7 +164,7 @@ func (u *Usecase) upsertInvestors(chanIn <-chan model.Investor) <-chan model.Inv
 			// delete outbox
 			err = u.repo.DeleteOutbox(ctx, investor.ID)
 			if err != nil {
-				log.Printf("[ERROR] Investor Usecase DeleteOutbox %v", err.Error())
+				logrus.Log(nil).Error(fmt.Sprintf("Investor Usecase DeleteOutbox, %v", err.Error()))
 				return
 			}
 			chanOut <- investor
@@ -200,7 +202,7 @@ func (u *Usecase) Generate(ctx context.Context) (err error) {
 		name := faker.Name()
 		err = u.repo.Generate(ctx, name)
 		if err != nil {
-			log.Printf("[ERROR] Investor Usecase Generate: %v", err.Error())
+			logrus.Log(nil).Error(fmt.Sprintf("Investor Usecase Generate, %v", err.Error()))
 			break
 		}
 	}

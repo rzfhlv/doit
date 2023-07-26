@@ -3,7 +3,9 @@ package database
 import (
 	"doit/config"
 	"embed"
-	"log"
+	"fmt"
+
+	logrus "doit/utilities/log"
 
 	"github.com/pressly/goose/v3"
 )
@@ -14,9 +16,9 @@ var embedMigrations embed.FS
 func Migrate(cfg *config.Config) {
 	goose.SetBaseFS(embedMigrations)
 	if err := goose.SetDialect("postgres"); err != nil {
-		log.Printf("err goose dialect: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("Goose Dialect, %v", err.Error()))
 	}
 	if err := goose.Up(cfg.Postgres.DB, "migrations"); err != nil {
-		log.Printf("err migrations: %v", err.Error())
+		logrus.Log(nil).Error(fmt.Sprintf("Migrations, %v", err.Error()))
 	}
 }

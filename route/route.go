@@ -21,6 +21,7 @@ func (cv CustomValidator) Validate(i interface{}) error {
 
 func ListRoute(svc *service.Service) (e *echo.Echo) {
 	e = echo.New()
+	e.Use(svc.Middleware.Log.Logrus)
 	e.Validator = &CustomValidator{validator: validator.New()}
 
 	route := e.Group("/v1")

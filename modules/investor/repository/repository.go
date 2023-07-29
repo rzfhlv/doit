@@ -2,11 +2,12 @@ package repository
 
 import (
 	"context"
-	"doit/modules/investor/model"
-	"doit/utilities"
 	"fmt"
 
-	logrus "doit/utilities/log"
+	"github.com/rzfhlv/doit/modules/investor/model"
+	"github.com/rzfhlv/doit/utilities"
+
+	logrus "github.com/rzfhlv/doit/utilities/log"
 
 	"github.com/jmoiron/sqlx"
 	"go.mongodb.org/mongo-driver/bson"

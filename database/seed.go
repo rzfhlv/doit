@@ -1,8 +1,8 @@
 package database
 
 import (
-	"doit/config"
-	"doit/database/seeders"
+	"github.com/rzfhlv/doit/config"
+	"github.com/rzfhlv/doit/database/seeders"
 )
 
 func Seed(cfg *config.Config, args []string) {

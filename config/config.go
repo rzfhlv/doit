@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	logrus "doit/utilities/log"
+	logrus "github.com/rzfhlv/doit/utilities/log"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"

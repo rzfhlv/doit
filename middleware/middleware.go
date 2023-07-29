@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"doit/middleware/auth"
-	"doit/middleware/log"
+	"github.com/rzfhlv/doit/middleware/auth"
+	"github.com/rzfhlv/doit/middleware/log"
 
 	"github.com/redis/go-redis/v9"
 )

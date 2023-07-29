@@ -1,11 +1,11 @@
 package route
 
 import (
-	healthCheck "doit/modules/health-check"
-	"doit/modules/investor"
-	"doit/modules/person"
-	"doit/modules/user"
-	"doit/service"
+	healthCheck "github.com/rzfhlv/doit/modules/health-check"
+	"github.com/rzfhlv/doit/modules/investor"
+	"github.com/rzfhlv/doit/modules/person"
+	"github.com/rzfhlv/doit/modules/user"
+	"github.com/rzfhlv/doit/service"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"

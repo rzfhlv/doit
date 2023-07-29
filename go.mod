@@ -1,4 +1,4 @@
-module doit
+module github.com/rzfhlv/doit
 
 go 1.19
 

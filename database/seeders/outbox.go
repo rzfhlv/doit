@@ -2,8 +2,9 @@ package seeders
 
 import (
 	"context"
-	"doit/modules/investor/model"
 	"time"
+
+	"github.com/rzfhlv/doit/modules/investor/model"
 
 	"github.com/bxcodec/faker/v3"
 	"go.mongodb.org/mongo-driver/bson"

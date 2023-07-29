@@ -1,11 +1,11 @@
 package person
 
 import (
-	"doit/config"
-	"doit/middleware/auth"
-	"doit/modules/person/handler"
-	"doit/modules/person/repository"
-	"doit/modules/person/usecase"
+	"github.com/rzfhlv/doit/config"
+	"github.com/rzfhlv/doit/middleware/auth"
+	"github.com/rzfhlv/doit/modules/person/handler"
+	"github.com/rzfhlv/doit/modules/person/repository"
+	"github.com/rzfhlv/doit/modules/person/usecase"
 
 	"github.com/labstack/echo/v4"
 )

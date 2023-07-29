@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	logrus "doit/utilities/log"
+	logrus "github.com/rzfhlv/doit/utilities/log"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/redis/go-redis/v9"

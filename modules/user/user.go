@@ -1,11 +1,11 @@
 package user
 
 import (
-	"doit/config"
-	"doit/middleware/auth"
-	"doit/modules/user/handler"
-	"doit/modules/user/repository"
-	"doit/modules/user/usecase"
+	"github.com/rzfhlv/doit/config"
+	"github.com/rzfhlv/doit/middleware/auth"
+	"github.com/rzfhlv/doit/modules/user/handler"
+	"github.com/rzfhlv/doit/modules/user/repository"
+	"github.com/rzfhlv/doit/modules/user/usecase"
 
 	"github.com/labstack/echo/v4"
 )

@@ -2,11 +2,12 @@ package repository
 
 import (
 	"context"
-	"doit/modules/person/model"
-	"doit/utilities"
 	"fmt"
 
-	logrus "doit/utilities/log"
+	"github.com/rzfhlv/doit/modules/person/model"
+	"github.com/rzfhlv/doit/utilities"
+
+	logrus "github.com/rzfhlv/doit/utilities/log"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"

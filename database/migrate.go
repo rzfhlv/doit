@@ -1,11 +1,12 @@
 package database
 
 import (
-	"doit/config"
 	"embed"
 	"fmt"
 
-	logrus "doit/utilities/log"
+	"github.com/rzfhlv/doit/config"
+
+	logrus "github.com/rzfhlv/doit/utilities/log"
 
 	"github.com/pressly/goose/v3"
 )

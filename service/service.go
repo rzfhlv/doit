@@ -1,12 +1,12 @@
 package service
 
 import (
-	"doit/config"
-	"doit/middleware"
-	hc "doit/modules/health-check"
-	"doit/modules/investor"
-	"doit/modules/person"
-	"doit/modules/user"
+	"github.com/rzfhlv/doit/config"
+	"github.com/rzfhlv/doit/middleware"
+	hc "github.com/rzfhlv/doit/modules/health-check"
+	"github.com/rzfhlv/doit/modules/investor"
+	"github.com/rzfhlv/doit/modules/person"
+	"github.com/rzfhlv/doit/modules/user"
 )
 
 type Service struct {

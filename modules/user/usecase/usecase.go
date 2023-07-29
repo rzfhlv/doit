@@ -2,12 +2,13 @@ package usecase
 
 import (
 	"context"
-	"doit/modules/user/model"
-	"doit/modules/user/repository"
-	"doit/utilities/jwt"
 	"time"
 
-	logrus "doit/utilities/log"
+	"github.com/rzfhlv/doit/modules/user/model"
+	"github.com/rzfhlv/doit/modules/user/repository"
+	"github.com/rzfhlv/doit/utilities/jwt"
+
+	logrus "github.com/rzfhlv/doit/utilities/log"
 
 	"golang.org/x/crypto/bcrypt"
 )

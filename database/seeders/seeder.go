@@ -2,7 +2,8 @@ package seeders
 
 import (
 	"context"
-	"doit/config"
+
+	"github.com/rzfhlv/doit/config"
 )
 
 type ISeed interface {

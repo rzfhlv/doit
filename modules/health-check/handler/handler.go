@@ -2,12 +2,13 @@ package handler
 
 import (
 	"context"
-	"doit/modules/health-check/usecase"
-	"doit/utilities"
 	"fmt"
 	"net/http"
 
-	logrus "doit/utilities/log"
+	"github.com/rzfhlv/doit/modules/health-check/usecase"
+	"github.com/rzfhlv/doit/utilities"
+
+	logrus "github.com/rzfhlv/doit/utilities/log"
 
 	"github.com/labstack/echo/v4"
 )

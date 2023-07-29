@@ -2,13 +2,14 @@ package auth
 
 import (
 	"context"
-	"doit/utilities"
-	"doit/utilities/jwt"
 	"fmt"
 	"net/http"
 	"strings"
 
-	logrus "doit/utilities/log"
+	"github.com/rzfhlv/doit/utilities"
+	"github.com/rzfhlv/doit/utilities/jwt"
+
+	logrus "github.com/rzfhlv/doit/utilities/log"
 
 	"github.com/labstack/echo/v4"
 	"github.com/redis/go-redis/v9"

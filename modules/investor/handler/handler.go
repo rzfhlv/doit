@@ -3,13 +3,14 @@ package handler
 import (
 	"context"
 	"database/sql"
-	"doit/modules/investor/usecase"
-	"doit/utilities"
 	"fmt"
 	"net/http"
 	"strconv"
 
-	logrus "doit/utilities/log"
+	"github.com/rzfhlv/doit/modules/investor/usecase"
+	"github.com/rzfhlv/doit/utilities"
+
+	logrus "github.com/rzfhlv/doit/utilities/log"
 
 	"github.com/labstack/echo/v4"
 )

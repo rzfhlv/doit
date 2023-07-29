@@ -1,11 +1,11 @@
 package investor
 
 import (
-	"doit/config"
-	"doit/middleware/auth"
-	"doit/modules/investor/handler"
-	"doit/modules/investor/repository"
-	"doit/modules/investor/usecase"
+	"github.com/rzfhlv/doit/config"
+	"github.com/rzfhlv/doit/middleware/auth"
+	"github.com/rzfhlv/doit/modules/investor/handler"
+	"github.com/rzfhlv/doit/modules/investor/repository"
+	"github.com/rzfhlv/doit/modules/investor/usecase"
 
 	"github.com/labstack/echo/v4"
 )

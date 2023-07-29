@@ -2,15 +2,16 @@ package usecase
 
 import (
 	"context"
-	"doit/modules/investor/model"
-	"doit/modules/investor/repository"
-	"doit/utilities"
 	"encoding/json"
 	"fmt"
 	"sync"
 	"time"
 
-	logrus "doit/utilities/log"
+	"github.com/rzfhlv/doit/modules/investor/model"
+	"github.com/rzfhlv/doit/modules/investor/repository"
+	"github.com/rzfhlv/doit/utilities"
+
+	logrus "github.com/rzfhlv/doit/utilities/log"
 
 	"github.com/bxcodec/faker/v3"
 )

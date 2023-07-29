@@ -2,13 +2,14 @@ package handler
 
 import (
 	"context"
-	"doit/modules/person/usecase"
-	"doit/utilities"
 	"fmt"
 	"net/http"
 	"strconv"
 
-	logrus "doit/utilities/log"
+	"github.com/rzfhlv/doit/modules/person/usecase"
+	"github.com/rzfhlv/doit/utilities"
+
+	logrus "github.com/rzfhlv/doit/utilities/log"
 
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/mongo"

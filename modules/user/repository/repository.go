@@ -2,12 +2,13 @@ package repository
 
 import (
 	"context"
-	"doit/modules/user/model"
 	"fmt"
 	"log"
 	"time"
 
-	logrus "doit/utilities/log"
+	"github.com/rzfhlv/doit/modules/user/model"
+
+	logrus "github.com/rzfhlv/doit/utilities/log"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/redis/go-redis/v9"

@@ -1,10 +1,10 @@
 package healthcheck
 
 import (
-	"doit/config"
-	"doit/modules/health-check/handler"
-	"doit/modules/health-check/repository"
-	"doit/modules/health-check/usecase"
+	"github.com/rzfhlv/doit/config"
+	"github.com/rzfhlv/doit/modules/health-check/handler"
+	"github.com/rzfhlv/doit/modules/health-check/repository"
+	"github.com/rzfhlv/doit/modules/health-check/usecase"
 
 	"github.com/labstack/echo/v4"
 )

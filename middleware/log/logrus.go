@@ -1,7 +1,7 @@
 package log
 
 import (
-	uLog "doit/utilities/log"
+	uLog "github.com/rzfhlv/doit/utilities/log"
 
 	"github.com/labstack/echo/v4"
 )

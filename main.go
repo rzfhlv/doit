@@ -1,13 +1,14 @@
 package main
 
 import (
-	"doit/config"
-	"doit/database"
-	"doit/route"
-	"doit/service"
 	"flag"
 	"fmt"
 	"os"
+
+	"github.com/rzfhlv/doit/config"
+	"github.com/rzfhlv/doit/database"
+	"github.com/rzfhlv/doit/route"
+	"github.com/rzfhlv/doit/service"
 
 	// "github.com/jasonlvhit/gocron"
 

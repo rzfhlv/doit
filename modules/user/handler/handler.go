@@ -3,14 +3,15 @@ package handler
 import (
 	"context"
 	"database/sql"
-	"doit/modules/user/model"
-	"doit/modules/user/usecase"
-	"doit/utilities"
 	"fmt"
 	"net/http"
 	"strings"
 
-	logrus "doit/utilities/log"
+	"github.com/rzfhlv/doit/modules/user/model"
+	"github.com/rzfhlv/doit/modules/user/usecase"
+	"github.com/rzfhlv/doit/utilities"
+
+	logrus "github.com/rzfhlv/doit/utilities/log"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"

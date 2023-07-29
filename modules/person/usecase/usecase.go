@@ -2,11 +2,12 @@ package usecase
 
 import (
 	"context"
-	"doit/modules/person/model"
-	"doit/modules/person/repository"
-	"doit/utilities"
-	logrus "doit/utilities/log"
 	"fmt"
+
+	"github.com/rzfhlv/doit/modules/person/model"
+	"github.com/rzfhlv/doit/modules/person/repository"
+	"github.com/rzfhlv/doit/utilities"
+	logrus "github.com/rzfhlv/doit/utilities/log"
 )
 
 type IUsecase interface {

@@ -2,9 +2,10 @@ package usecase
 
 import (
 	"context"
-	"doit/modules/health-check/repository"
-	logrus "doit/utilities/log"
 	"fmt"
+
+	"github.com/rzfhlv/doit/modules/health-check/repository"
+	logrus "github.com/rzfhlv/doit/utilities/log"
 )
 
 type IUsecase interface {

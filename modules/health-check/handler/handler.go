@@ -7,6 +7,7 @@ import (
 
 	"github.com/rzfhlv/doit/modules/health-check/usecase"
 	"github.com/rzfhlv/doit/utilities"
+	"github.com/rzfhlv/doit/utilities/message"
 
 	logrus "github.com/rzfhlv/doit/utilities/log"
 
@@ -33,7 +34,7 @@ func (h *Handler) HealthCheck(e echo.Context) (err error) {
 	err = h.usecase.HealthCheck(ctx)
 	if err != nil {
 		logrus.Log(nil).Error(fmt.Sprintf("Health Check Handler, %v", err.Error()))
-		return e.JSON(http.StatusInternalServerError, utilities.SetResponse("error", "Something went wrong", nil, nil))
+		return e.JSON(http.StatusInternalServerError, utilities.SetResponse("error", message.SOMETHINGWENTWRONG, nil, nil))
 	}
-	return e.JSON(http.StatusOK, utilities.SetResponse("ok", "I'm health", nil, nil))
+	return e.JSON(http.StatusOK, utilities.SetResponse(message.OK, message.HEALTHCHECK, nil, nil))
 }

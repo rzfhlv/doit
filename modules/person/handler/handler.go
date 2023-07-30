@@ -8,6 +8,7 @@ import (
 
 	"github.com/rzfhlv/doit/modules/person/usecase"
 	"github.com/rzfhlv/doit/utilities"
+	"github.com/rzfhlv/doit/utilities/message"
 
 	logrus "github.com/rzfhlv/doit/utilities/log"
 
@@ -39,16 +40,16 @@ func (h *Handler) GetAll(e echo.Context) (err error) {
 	err = (&echo.DefaultBinder{}).BindQueryParams(e, &param)
 	if err != nil {
 		logrus.Log(nil).Error(fmt.Sprintf("Person Handler GetAll BindQueryParam, %v", err.Error()))
-		return e.JSON(http.StatusUnprocessableEntity, utilities.SetResponse("error", err.Error(), nil, nil))
+		return e.JSON(http.StatusUnprocessableEntity, utilities.SetResponse(message.ERROR, err.Error(), nil, nil))
 	}
 
 	persons, err := h.usecase.GetAll(ctx, &param)
 	if err != nil {
 		logrus.Log(nil).Error(fmt.Sprintf("Person Handler GetAll, %v", err.Error()))
-		return e.JSON(http.StatusInternalServerError, utilities.SetResponse("error", "Something went wrong", nil, nil))
+		return e.JSON(http.StatusInternalServerError, utilities.SetResponse(message.ERROR, message.SOMETHINGWENTWRONG, nil, nil))
 	}
 	meta := utilities.BuildMeta(param, len(persons))
-	return e.JSON(http.StatusOK, utilities.SetResponse("ok", "success", meta, persons))
+	return e.JSON(http.StatusOK, utilities.SetResponse(message.OK, message.SUCCESS, meta, persons))
 }
 
 func (h *Handler) GetByID(e echo.Context) (err error) {
@@ -57,15 +58,15 @@ func (h *Handler) GetByID(e echo.Context) (err error) {
 	personId, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		logrus.Log(nil).Error(fmt.Sprintf("Person Handler GetByID ParseInt, %v", err.Error()))
-		return e.JSON(http.StatusUnprocessableEntity, utilities.SetResponse("error", err.Error(), nil, nil))
+		return e.JSON(http.StatusUnprocessableEntity, utilities.SetResponse(message.ERROR, err.Error(), nil, nil))
 	}
 	person, err := h.usecase.GetByID(ctx, personId)
 	if err != nil {
 		logrus.Log(nil).Error(fmt.Sprintf("Person Handler GetByID, %v", err.Error()))
 		if err == mongo.ErrNoDocuments {
-			return e.JSON(http.StatusNotFound, utilities.SetResponse("error", "Not found", nil, nil))
+			return e.JSON(http.StatusNotFound, utilities.SetResponse(message.ERROR, message.NOTFOUND, nil, nil))
 		}
-		return e.JSON(http.StatusInternalServerError, utilities.SetResponse("error", "Something went wrong", nil, nil))
+		return e.JSON(http.StatusInternalServerError, utilities.SetResponse(message.ERROR, message.SOMETHINGWENTWRONG, nil, nil))
 	}
-	return e.JSON(http.StatusOK, utilities.SetResponse("ok", "success", nil, person))
+	return e.JSON(http.StatusOK, utilities.SetResponse(message.OK, message.SUCCESS, nil, person))
 }

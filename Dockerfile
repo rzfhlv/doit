@@ -1,5 +1,5 @@
 # Start from golang base image
-FROM golang:alpine as builder
+FROM golang:alpine AS builder
 
 ARG APP_PORT
 

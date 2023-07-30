@@ -2,6 +2,7 @@ package log
 
 import (
 	uLog "github.com/rzfhlv/doit/utilities/log"
+	"github.com/rzfhlv/doit/utilities/message"
 
 	"github.com/labstack/echo/v4"
 )
@@ -18,7 +19,7 @@ func NewLog() ILog {
 
 func (l *Log) Logrus(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		uLog.Log(c).Info("Incoming Request")
+		uLog.Log(c).Info(message.INCOMINGREQUEST)
 		return next(c)
 	}
 }

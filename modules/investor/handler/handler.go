@@ -8,8 +8,9 @@ import (
 	"strconv"
 
 	"github.com/rzfhlv/doit/modules/investor/usecase"
-	"github.com/rzfhlv/doit/utilities"
 	"github.com/rzfhlv/doit/utilities/message"
+	"github.com/rzfhlv/doit/utilities/param"
+	"github.com/rzfhlv/doit/utilities/response"
 
 	logrus "github.com/rzfhlv/doit/utilities/log"
 
@@ -35,23 +36,23 @@ func NewHandler(usecase usecase.IUsecase) IHandler {
 
 func (h *Handler) GetAll(e echo.Context) (err error) {
 	ctx := e.Request().WithContext(context.Background()).Context()
-	param := utilities.Param{}
+	param := param.Param{}
 	param.Limit = 10
 	param.Page = 1
 
 	err = (&echo.DefaultBinder{}).BindQueryParams(e, &param)
 	if err != nil {
 		logrus.Log(nil).Error(fmt.Sprintf("Investor Handler GetAll BindQueryParam, %v", err.Error()))
-		return e.JSON(http.StatusUnprocessableEntity, utilities.SetResponse(message.ERROR, err.Error(), nil, nil))
+		return e.JSON(http.StatusUnprocessableEntity, response.Set(message.ERROR, err.Error(), nil, nil))
 	}
 
 	investors, err := h.usecase.GetAll(ctx, &param)
 	if err != nil {
 		logrus.Log(nil).Error(fmt.Sprintf("Investor Handler GetAll, %v", err.Error()))
-		return e.JSON(http.StatusInternalServerError, utilities.SetResponse(message.ERROR, message.SOMETHINGWENTWRONG, nil, nil))
+		return e.JSON(http.StatusInternalServerError, response.Set(message.ERROR, message.SOMETHINGWENTWRONG, nil, nil))
 	}
-	meta := utilities.BuildMeta(param, len(investors))
-	return e.JSON(http.StatusOK, utilities.SetResponse(message.OK, message.SUCCESS, meta, investors))
+	meta := response.BuildMeta(param, len(investors))
+	return e.JSON(http.StatusOK, response.Set(message.OK, message.SUCCESS, meta, investors))
 }
 
 func (h *Handler) GetByID(e echo.Context) (err error) {
@@ -60,17 +61,17 @@ func (h *Handler) GetByID(e echo.Context) (err error) {
 	investorId, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		logrus.Log(nil).Error(fmt.Sprintf("Investor Handler GetByID ParseInt, %v", err.Error()))
-		return e.JSON(http.StatusUnprocessableEntity, utilities.SetResponse(message.ERROR, err.Error(), nil, nil))
+		return e.JSON(http.StatusUnprocessableEntity, response.Set(message.ERROR, err.Error(), nil, nil))
 	}
 	investor, err := h.usecase.GetByID(ctx, investorId)
 	if err != nil {
 		logrus.Log(nil).Error(fmt.Sprintf("Investor Handler GetByID, %v", err.Error()))
 		if err == sql.ErrNoRows {
-			return e.JSON(http.StatusNotFound, utilities.SetResponse(message.ERROR, message.NOTFOUND, nil, nil))
+			return e.JSON(http.StatusNotFound, response.Set(message.ERROR, message.NOTFOUND, nil, nil))
 		}
-		return e.JSON(http.StatusInternalServerError, utilities.SetResponse(message.ERROR, message.SOMETHINGWENTWRONG, nil, nil))
+		return e.JSON(http.StatusInternalServerError, response.Set(message.ERROR, message.SOMETHINGWENTWRONG, nil, nil))
 	}
-	return e.JSON(http.StatusOK, utilities.SetResponse(message.OK, message.SUCCESS, nil, investor))
+	return e.JSON(http.StatusOK, response.Set(message.OK, message.SUCCESS, nil, investor))
 }
 
 func (h *Handler) Generate(e echo.Context) (err error) {
@@ -79,9 +80,9 @@ func (h *Handler) Generate(e echo.Context) (err error) {
 	err = h.usecase.Generate(ctx)
 	if err != nil {
 		logrus.Log(nil).Error(fmt.Sprintf("Investor Handler Generate, %v", err.Error()))
-		return e.JSON(http.StatusInternalServerError, utilities.SetResponse(message.ERROR, message.SOMETHINGWENTWRONG, nil, nil))
+		return e.JSON(http.StatusInternalServerError, response.Set(message.ERROR, message.SOMETHINGWENTWRONG, nil, nil))
 	}
-	return e.JSON(http.StatusOK, utilities.SetResponse(message.OK, message.SUCCESS, nil, nil))
+	return e.JSON(http.StatusOK, response.Set(message.OK, message.SUCCESS, nil, nil))
 }
 
 func (h *Handler) Migrate(e echo.Context) (err error) {
@@ -90,7 +91,7 @@ func (h *Handler) Migrate(e echo.Context) (err error) {
 	err = h.usecase.MigrateInvestors(ctx)
 	if err != nil {
 		logrus.Log(nil).Error(fmt.Sprintf("Investor Handler Migrate, %v", err.Error()))
-		return e.JSON(http.StatusInternalServerError, utilities.SetResponse(message.ERROR, message.SOMETHINGWENTWRONG, nil, nil))
+		return e.JSON(http.StatusInternalServerError, response.Set(message.ERROR, message.SOMETHINGWENTWRONG, nil, nil))
 	}
-	return e.JSON(http.StatusOK, utilities.SetResponse(message.OK, message.SUCCESS, nil, nil))
+	return e.JSON(http.StatusOK, response.Set(message.OK, message.SUCCESS, nil, nil))
 }

@@ -6,12 +6,12 @@ import (
 
 	"github.com/rzfhlv/doit/modules/person/model"
 	"github.com/rzfhlv/doit/modules/person/repository"
-	"github.com/rzfhlv/doit/utilities"
 	logrus "github.com/rzfhlv/doit/utilities/log"
+	"github.com/rzfhlv/doit/utilities/param"
 )
 
 type IUsecase interface {
-	GetAll(ctx context.Context, param *utilities.Param) (persons []model.Person, err error)
+	GetAll(ctx context.Context, param *param.Param) (persons []model.Person, err error)
 	GetByID(ctx context.Context, id int64) (person model.Person, err error)
 }
 
@@ -25,7 +25,7 @@ func NewUsecase(repo repository.IRepository) IUsecase {
 	}
 }
 
-func (u *Usecase) GetAll(ctx context.Context, param *utilities.Param) (persons []model.Person, err error) {
+func (u *Usecase) GetAll(ctx context.Context, param *param.Param) (persons []model.Person, err error) {
 	persons, err = u.repo.GetAll(ctx, *param)
 	if err != nil {
 		logrus.Log(nil).Error(fmt.Sprintf("Person Usecase GetAll, %v", err.Error()))

@@ -1,6 +1,10 @@
-package utilities
+package response
 
-import "math"
+import (
+	"math"
+
+	"github.com/rzfhlv/doit/utilities/param"
+)
 
 type Response struct {
 	Status  string      `json:"status"`
@@ -17,7 +21,7 @@ type Meta struct {
 	Total     int64 `json:"total"`
 }
 
-func BuildMeta(param Param, data int) Meta {
+func BuildMeta(param param.Param, data int) Meta {
 	pageCount := 0
 	if param.Limit > 0 {
 		pageCount = int(math.Ceil(float64(param.Total) / float64(param.Limit)))
@@ -31,7 +35,7 @@ func BuildMeta(param Param, data int) Meta {
 	}
 }
 
-func SetResponse(status string, message string, meta, result interface{}) Response {
+func Set(status string, message string, meta, result interface{}) Response {
 	return Response{
 		Status:  status,
 		Message: message,

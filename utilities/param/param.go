@@ -1,4 +1,4 @@
-package utilities
+package param
 
 type Param struct {
 	Page   int   `json:"page" query:"page"`

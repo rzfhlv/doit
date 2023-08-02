@@ -7,7 +7,7 @@ import (
 
 	"github.com/rzfhlv/doit/config"
 	"github.com/rzfhlv/doit/database"
-	"github.com/rzfhlv/doit/route"
+	"github.com/rzfhlv/doit/routes"
 	"github.com/rzfhlv/doit/service"
 
 	// "github.com/jasonlvhit/gocron"
@@ -32,7 +32,7 @@ func main() {
 	svc := service.NewService(cfg)
 
 	// load route
-	e := route.ListRoute(svc)
+	e := routes.ListRoutes(svc)
 
 	// start cron job
 	// s := gocron.NewScheduler()

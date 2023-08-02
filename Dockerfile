@@ -32,11 +32,14 @@ FROM alpine:latest
 
 RUN apk --no-cache add ca-certificates
 
-WORKDIR /root/
+RUN adduser -D doit
+USER doit
+
+WORKDIR /app/
 
 # Copy the Pre-built binary file from the previous stage. Observe we also copied the .env file
 COPY --from=builder /app/main .
-COPY --from=builder /app/.env .       
+COPY --from=builder /app/.env .    
 
 # Expose port to the outside world
 EXPOSE $APP_PORT

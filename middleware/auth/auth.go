@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/rzfhlv/doit/utilities"
 	"github.com/rzfhlv/doit/utilities/jwt"
 	"github.com/rzfhlv/doit/utilities/message"
+	"github.com/rzfhlv/doit/utilities/response"
 
 	logrus "github.com/rzfhlv/doit/utilities/log"
 
@@ -43,29 +43,29 @@ func (am *Auth) Bearer(next echo.HandlerFunc) echo.HandlerFunc {
 		split := strings.Split(c.Request().Header.Get("Authorization"), " ")
 		if len(split) < 2 {
 			logrus.Log(nil).Error(fmt.Sprintf("Auth Unsupported Token: %v", len(split)))
-			return c.JSON(http.StatusUnauthorized, utilities.SetResponse(message.ERROR, message.UNAUTHORIZED, nil, nil))
+			return c.JSON(http.StatusUnauthorized, response.Set(message.ERROR, message.UNAUTHORIZED, nil, nil))
 		}
 
 		if split[0] != BEARER {
 			logrus.Log(nil).Error(fmt.Sprintf("Auth Unsupported Token: %v", split[0]))
-			return c.JSON(http.StatusUnauthorized, utilities.SetResponse(message.ERROR, message.UNAUTHORIZED, nil, nil))
+			return c.JSON(http.StatusUnauthorized, response.Set(message.ERROR, message.UNAUTHORIZED, nil, nil))
 		}
 
 		if split[1] == "" {
 			logrus.Log(nil).Error(fmt.Sprintf("Auth Empty Token: %v", split[1]))
-			return c.JSON(http.StatusUnauthorized, utilities.SetResponse(message.ERROR, message.UNAUTHORIZED, nil, nil))
+			return c.JSON(http.StatusUnauthorized, response.Set(message.ERROR, message.UNAUTHORIZED, nil, nil))
 		}
 
 		claims, err := jwt.ValidateToken(split[1])
 		if err != nil {
 			logrus.Log(nil).Error(fmt.Sprintf("Auth Validation Invalid, %v", err.Error()))
-			return c.JSON(http.StatusUnauthorized, utilities.SetResponse(message.ERROR, message.UNAUTHORIZED, nil, nil))
+			return c.JSON(http.StatusUnauthorized, response.Set(message.ERROR, message.UNAUTHORIZED, nil, nil))
 		}
 
 		err = am.redis.Get(context.Background(), split[1]).Err()
 		if err != nil {
 			logrus.Log(nil).Error(fmt.Sprintf("Auth Redis Key Deleted, %v", err.Error()))
-			return c.JSON(http.StatusUnauthorized, utilities.SetResponse(message.ERROR, message.UNAUTHORIZED, nil, nil))
+			return c.JSON(http.StatusUnauthorized, response.Set(message.ERROR, message.UNAUTHORIZED, nil, nil))
 		}
 
 		c.Set(ID, claims.ID)

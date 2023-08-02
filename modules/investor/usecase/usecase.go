@@ -6,7 +6,7 @@ import (
 
 	"github.com/rzfhlv/doit/modules/investor/model"
 	"github.com/rzfhlv/doit/modules/investor/repository"
-	"github.com/rzfhlv/doit/utilities"
+	"github.com/rzfhlv/doit/utilities/param"
 
 	logrus "github.com/rzfhlv/doit/utilities/log"
 
@@ -16,7 +16,7 @@ import (
 type IUsecase interface {
 	MigrateInvestors(ctx context.Context) error
 	ConventionalMigrate(ctx context.Context) error
-	GetAll(ctx context.Context, param *utilities.Param) (investors []model.Investor, err error)
+	GetAll(ctx context.Context, param *param.Param) (investors []model.Investor, err error)
 	GetByID(ctx context.Context, id int64) (investor model.Investor, err error)
 	Generate(ctx context.Context) (err error)
 }
@@ -31,7 +31,7 @@ func NewUsecase(repo repository.IRepository) IUsecase {
 	}
 }
 
-func (u *Usecase) GetAll(ctx context.Context, param *utilities.Param) (investors []model.Investor, err error) {
+func (u *Usecase) GetAll(ctx context.Context, param *param.Param) (investors []model.Investor, err error) {
 	investors, err = u.repo.GetAll(ctx, *param)
 	if err != nil {
 		logrus.Log(nil).Error(fmt.Sprintf("Investor Usecase GetAll, %v", err.Error()))

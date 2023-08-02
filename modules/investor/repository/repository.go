@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/rzfhlv/doit/modules/investor/model"
-	"github.com/rzfhlv/doit/utilities"
+	"github.com/rzfhlv/doit/utilities/param"
 
 	logrus "github.com/rzfhlv/doit/utilities/log"
 
@@ -21,7 +21,7 @@ type IRepository interface {
 	UpsertOutbox(ctx context.Context, outbox model.Outbox) error
 	DeleteOutbox(ctx context.Context, identifier int64) error
 	GetPsql(ctx context.Context) ([]model.Investor, error)
-	GetAll(ctx context.Context, param utilities.Param) (investors []model.Investor, err error)
+	GetAll(ctx context.Context, param param.Param) (investors []model.Investor, err error)
 	GetByID(ctx context.Context, id int64) (investor model.Investor, err error)
 	Count(ctx context.Context) (total int64, err error)
 	Generate(ctx context.Context, name string) (err error)
@@ -103,7 +103,7 @@ func (r *Repository) DeleteOutbox(ctx context.Context, identifier int64) error {
 	return nil
 }
 
-func (r *Repository) GetAll(ctx context.Context, param utilities.Param) (investors []model.Investor, err error) {
+func (r *Repository) GetAll(ctx context.Context, param param.Param) (investors []model.Investor, err error) {
 	err = r.db.Select(&investors, `SELECT * FROM investors ORDER BY investors.id DESC LIMIT $1 OFFSET $2;`, param.Limit, param.CalculateOffset())
 	if err != nil {
 		logrus.Log(nil).Error(fmt.Sprintf("Investor Repo GetAll, %v", err.Error()))

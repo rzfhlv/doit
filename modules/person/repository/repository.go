@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/rzfhlv/doit/modules/person/model"
-	"github.com/rzfhlv/doit/utilities"
+	"github.com/rzfhlv/doit/utilities/param"
 
 	logrus "github.com/rzfhlv/doit/utilities/log"
 
@@ -15,7 +15,7 @@ import (
 )
 
 type IRepository interface {
-	GetAll(ctx context.Context, filter utilities.Param) (persons []model.Person, err error)
+	GetAll(ctx context.Context, filter param.Param) (persons []model.Person, err error)
 	GetByID(ctx context.Context, id int64) (person model.Person, err error)
 	Count(ctx context.Context) (total int64, err error)
 }
@@ -30,7 +30,7 @@ func NewRepository(dbMongo *mongo.Database) IRepository {
 	}
 }
 
-func (r *Repository) GetAll(ctx context.Context, param utilities.Param) (persons []model.Person, err error) {
+func (r *Repository) GetAll(ctx context.Context, param param.Param) (persons []model.Person, err error) {
 	findOptions := options.Find()
 	findOptions.SetSort(bson.D{{Key: "id", Value: -1}})
 	findOptions.SetSkip(int64(param.CalculateOffset()))

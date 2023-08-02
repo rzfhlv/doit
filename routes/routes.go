@@ -1,4 +1,4 @@
-package route
+package routes
 
 import (
 	healthCheck "github.com/rzfhlv/doit/modules/health-check"
@@ -19,7 +19,7 @@ func (cv CustomValidator) Validate(i interface{}) error {
 	return cv.validator.Struct(i)
 }
 
-func ListRoute(svc *service.Service) (e *echo.Echo) {
+func ListRoutes(svc *service.Service) (e *echo.Echo) {
 	e = echo.New()
 	e.Use(svc.Middleware.Log.Logrus)
 	e.Validator = &CustomValidator{validator: validator.New()}

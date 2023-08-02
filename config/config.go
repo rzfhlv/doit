@@ -4,12 +4,16 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/jmoiron/sqlx"
 	logrus "github.com/rzfhlv/doit/utilities/log"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
+
+	aMongo "github.com/rzfhlv/doit/adapter/mongo"
+	aPostgres "github.com/rzfhlv/doit/adapter/postgres"
+	aRedis "github.com/rzfhlv/doit/adapter/redis"
 )
 
 type Config struct {
@@ -27,29 +31,29 @@ func Init() *Config {
 	}
 
 	// connect to postgres
-	psql, err := NewPostgres()
+	postgres, err := aPostgres.NewPostgres()
 	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("Psql Connection, %v", err.Error()))
+		logrus.Log(nil).Error(fmt.Sprintf("Postgres Connection, %v", err.Error()))
 		os.Exit(1)
 	}
 
 	// connect to mongo
-	mongo, err := NewMongo()
+	mongo, err := aMongo.NewMongo()
 	if err != nil {
 		logrus.Log(nil).Error(fmt.Sprintf("Mongo Connection, %v", err.Error()))
 		os.Exit(1)
 	}
 
 	// connect to redis
-	redis, err := NewRedis()
+	redis, err := aRedis.NewRedis()
 	if err != nil {
 		logrus.Log(nil).Error(fmt.Sprintf("Redis Connection, %v", err.Error()))
 		os.Exit(1)
 	}
 
 	return &Config{
-		Postgres: psql,
-		Mongo:    mongo,
-		Redis:    redis,
+		Postgres: postgres.GetDB(),
+		Mongo:    mongo.GetDB(),
+		Redis:    redis.GetClient(),
 	}
 }

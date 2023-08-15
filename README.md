@@ -1,5 +1,10 @@
 # Just DOIT
 
+## Requirement
+
+- go version go1.19 or higher
+- docker and docker-compose
+
 ## How to use
 
 - clone from repo: 

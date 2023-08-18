@@ -4,8 +4,15 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"sync"
 
 	"github.com/redis/go-redis/v9"
+)
+
+var (
+	redisClient *redis.Client
+	redisOnce   sync.Once
+	redisErr    error
 )
 
 type Redis struct {
@@ -13,19 +20,25 @@ type Redis struct {
 }
 
 func NewRedis() (*Redis, error) {
-	client := redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:%s", os.Getenv("REDIS_HOST"), os.Getenv("REDIS_PORT")),
-		Password: os.Getenv("REDIS_PASSWORD"),
-		DB:       0,
+	redisOnce.Do(func() {
+		redisClient = redis.NewClient(&redis.Options{
+			Addr:     fmt.Sprintf("%s:%s", os.Getenv("REDIS_HOST"), os.Getenv("REDIS_PORT")),
+			Password: os.Getenv("REDIS_PASSWORD"),
+			DB:       0,
+		})
+
+		err := redisClient.Ping(context.Background()).Err()
+		if err != nil {
+			redisErr = err
+		}
 	})
 
-	err := client.Ping(context.Background()).Err()
-	if err != nil {
-		return nil, err
+	if redisErr != nil {
+		return nil, redisErr
 	}
 
 	return &Redis{
-		client: client,
+		client: redisClient,
 	}, nil
 }
 

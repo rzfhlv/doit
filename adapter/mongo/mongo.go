@@ -4,9 +4,16 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"sync"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+)
+
+var (
+	mongoClient *mongo.Client
+	mongoOnce   sync.Once
+	mongoError  error
 )
 
 type Mongo struct {
@@ -14,22 +21,29 @@ type Mongo struct {
 }
 
 func NewMongo() (*Mongo, error) {
-	uri := fmt.Sprintf("mongodb://%s:%s@%s:%s", os.Getenv("MONGO_USER"), os.Getenv("MONGO_PASSWORD"), os.Getenv("MONGO_HOST"), os.Getenv("MONGO_PORT"))
-	clientOptions := options.Client()
-	clientOptions.ApplyURI(uri)
+	mongoOnce.Do(func() {
+		uri := fmt.Sprintf("mongodb://%s:%s@%s:%s", os.Getenv("MONGO_USER"), os.Getenv("MONGO_PASSWORD"), os.Getenv("MONGO_HOST"), os.Getenv("MONGO_PORT"))
+		clientOptions := options.Client()
+		clientOptions.ApplyURI(uri)
 
-	client, err := mongo.NewClient(clientOptions)
-	if err != nil {
-		return nil, err
-	}
+		var err error
+		mongoClient, err = mongo.NewClient(clientOptions)
+		if err != nil {
+			mongoError = err
+		}
 
-	err = client.Connect(context.Background())
-	if err != nil {
-		return nil, err
+		err = mongoClient.Connect(context.Background())
+		if err != nil {
+			mongoError = err
+		}
+	})
+
+	if mongoError != nil {
+		return nil, mongoError
 	}
 
 	return &Mongo{
-		client: client,
+		client: mongoClient,
 	}, nil
 }
 

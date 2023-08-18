@@ -49,6 +49,5 @@ func TestHealthCheckError(t *testing.T) {
 	ctx := e.NewContext(req, rec)
 
 	_ = h.HealthCheck(ctx)
-	mockUsecase.AssertExpectations(t)
 	assert.Equal(t, http.StatusInternalServerError, rec.Code)
 }

@@ -26,16 +26,23 @@ var (
 	errFoo = errors.New("error")
 )
 
+func TestNewHandler(t *testing.T) {
+	mockUsecase := mockUsecase.IUsecase{}
+
+	h := NewHandler(&mockUsecase)
+	assert.NotNil(t, h)
+}
+
 func TestGetAllHandler(t *testing.T) {
 	testCase := []testCase{
 		{
-			name: "Testcase #1: Positive", wantError: nil, err: false, id: "?page=1", code: 200,
+			name: "Testcase #1: Positive", wantError: nil, err: false, id: "?page=1", code: http.StatusOK,
 		},
 		{
-			name: "Testcase #2: Negative", wantError: errFoo, err: true, id: "?page=1", code: 500,
+			name: "Testcase #2: Negative", wantError: errFoo, err: true, id: "?page=1", code: http.StatusInternalServerError,
 		},
 		{
-			name: "Testcase #3: Negative Param", wantError: errFoo, err: true, id: "?page=dua", code: 422,
+			name: "Testcase #3: Negative Param", wantError: errFoo, err: true, id: "?page=dua", code: http.StatusUnprocessableEntity,
 		},
 	}
 	for _, tt := range testCase {
@@ -65,16 +72,16 @@ func TestGetAllHandler(t *testing.T) {
 func TestGetByIDHandler(t *testing.T) {
 	testCase := []testCase{
 		{
-			name: "Testcase #1: Positive", wantError: nil, err: false, id: "1", code: 200,
+			name: "Testcase #1: Positive", wantError: nil, err: false, id: "1", code: http.StatusOK,
 		},
 		{
-			name: "Testcase #2: Negative", wantError: errFoo, err: true, id: "1", code: 500,
+			name: "Testcase #2: Negative", wantError: errFoo, err: true, id: "1", code: http.StatusInternalServerError,
 		},
 		{
-			name: "Testcase #3: Negative Wrong ID", wantError: errFoo, err: true, id: "s", code: 422,
+			name: "Testcase #3: Negative Wrong ID", wantError: errFoo, err: true, id: "s", code: http.StatusUnprocessableEntity,
 		},
 		{
-			name: "Testcase #4: Negative No Rows", wantError: sql.ErrNoRows, err: true, id: "0", code: 404,
+			name: "Testcase #4: Negative No Rows", wantError: sql.ErrNoRows, err: true, id: "0", code: http.StatusNotFound,
 		},
 	}
 	for _, tt := range testCase {

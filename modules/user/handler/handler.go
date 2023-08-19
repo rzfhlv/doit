@@ -48,7 +48,7 @@ func (h *Handler) Register(e echo.Context) (err error) {
 
 	err = e.Validate(user)
 	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("User Handler Register Validation: %v", err.(validator.ValidationErrors)))
+		logrus.Log(nil).Error(fmt.Sprintf("User Handler Register Validation: %v", err.Error()))
 		return e.JSON(http.StatusBadRequest, response.Set(message.ERROR, err.Error(), nil, nil))
 	}
 
@@ -72,7 +72,7 @@ func (h *Handler) Login(e echo.Context) (err error) {
 
 	err = e.Validate(login)
 	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("User Handler Login Validation, %v", err.(validator.ValidationErrors)))
+		logrus.Log(nil).Error(fmt.Sprintf("User Handler Login Validation, %v", err.Error()))
 		return e.JSON(http.StatusBadRequest, response.Set(message.ERROR, err.Error(), nil, nil))
 	}
 

@@ -3,6 +3,7 @@
 ## Requirement
 
 - go version go1.19 or higher
+- mokery version v2.32.4 or higher
 - docker and docker-compose
 
 ## How to use

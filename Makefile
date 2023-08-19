@@ -7,6 +7,9 @@ up:
 down:
 	docker-compose down
 
+mocks:
+	@mockery --all --keeptree --dir=modules --output=utilities/mocks --case underscore
+
 test:
 	@go test ./... -short -cover
 

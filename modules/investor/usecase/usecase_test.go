@@ -12,6 +12,12 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+func TestNewUsecase(t *testing.T) {
+	mockRepo := mockRepo.IRepository{}
+	u := NewUsecase(&mockRepo)
+	assert.NotNil(t, u)
+}
+
 func TestGetAllUsecase(t *testing.T) {
 	t.Run("Testcase #1: Positive GetAll", func(t *testing.T) {
 		var count int64 = 10

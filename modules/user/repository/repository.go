@@ -17,8 +17,8 @@ import (
 type IRepository interface {
 	Register(ctx context.Context, user model.User) (result model.User, err error)
 	Login(ctx context.Context, login model.Login) (result model.User, err error)
-	Set(ctx context.Context, key string, value int64, ttl time.Duration) (err error)
-	Get(ctx context.Context, key string) (value int64, err error)
+	Set(ctx context.Context, key string, value string, ttl time.Duration) (err error)
+	Get(ctx context.Context, key string) (value string, err error)
 	Del(ctx context.Context, key string) (err error)
 }
 
@@ -35,8 +35,7 @@ func NewRepository(db *sqlx.DB, redis *redis.Client) IRepository {
 }
 
 func (r *Repository) Register(ctx context.Context, user model.User) (result model.User, err error) {
-	now := time.Now()
-	err = r.db.Get(&result, RegisterQuery, user.Name, user.Email, user.Username, user.Password, now)
+	err = r.db.Get(&result, RegisterQuery, user.Name, user.Email, user.Username, user.Password, user.CreatedAt)
 	if err != nil {
 		logrus.Log(nil).Error(fmt.Sprintf("User Repo Register, %v", err.Error()))
 	}
@@ -52,7 +51,7 @@ func (r *Repository) Login(ctx context.Context, login model.Login) (result model
 	return
 }
 
-func (r *Repository) Set(ctx context.Context, key string, value int64, ttl time.Duration) (err error) {
+func (r *Repository) Set(ctx context.Context, key string, value string, ttl time.Duration) (err error) {
 	err = r.redis.Set(ctx, key, value, ttl).Err()
 	if err != nil {
 		logrus.Log(nil).Error(fmt.Sprintf("User Repo Set Redis, %v", err.Error()))
@@ -60,11 +59,12 @@ func (r *Repository) Set(ctx context.Context, key string, value int64, ttl time.
 	return
 }
 
-func (r *Repository) Get(ctx context.Context, key string) (value int64, err error) {
-	err = r.redis.Get(ctx, key).Err()
+func (r *Repository) Get(ctx context.Context, key string) (value string, err error) {
+	value, err = r.redis.Get(ctx, key).Result()
 	if err != nil {
 		logrus.Log(nil).Error(fmt.Sprintf("User Repo Get Redis, %v", err.Error()))
 	}
+
 	return
 }
 

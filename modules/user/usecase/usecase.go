@@ -50,7 +50,7 @@ func (u *Usecase) Register(ctx context.Context, user model.User) (result model.J
 		return
 	}
 
-	err = u.repo.Set(ctx, token, data.ID, time.Duration(1*time.Hour))
+	err = u.repo.Set(ctx, token, data.Username, time.Duration(1*time.Hour))
 	if err != nil {
 		logrus.Log(nil).Error(fmt.Sprintf("User Usecase Register Set Token to Redis, %v", err.Error()))
 		return
@@ -80,7 +80,7 @@ func (u *Usecase) Login(ctx context.Context, login model.Login) (result model.JW
 		return
 	}
 
-	err = u.repo.Set(ctx, token, data.ID, time.Duration(1*time.Hour))
+	err = u.repo.Set(ctx, token, data.Username, time.Duration(1*time.Hour))
 	if err != nil {
 		logrus.Log(nil).Error(fmt.Sprintf("User Usecase Login Set Token to Redis, %v", err.Error()))
 		return

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/rzfhlv/doit/modules/user/model"
 	"github.com/rzfhlv/doit/modules/user/usecase"
@@ -51,6 +52,7 @@ func (h *Handler) Register(e echo.Context) (err error) {
 		logrus.Log(nil).Error(fmt.Sprintf("User Handler Register Validation: %v", err.Error()))
 		return e.JSON(http.StatusBadRequest, response.Set(message.ERROR, err.Error(), nil, nil))
 	}
+	user.CreatedAt = time.Now()
 
 	result, err := h.usecase.Register(ctx, user)
 	if err != nil {

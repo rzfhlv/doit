@@ -12,15 +12,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-// type MockUsecase struct {
-// 	mock.Mock
-// }
-
-// func (m *MockUsecase) getInvestors() <-chan model.Investor {
-// 	args := m.Called()
-// 	return args.Get(0).(<-chan model.Investor)
-// }
-
 func TestConventionalMigrateUsecase(t *testing.T) {
 	t.Run("Testcase #1: Positive", func(t *testing.T) {
 		mockRepo := mockRepo.IRepository{}

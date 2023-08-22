@@ -1,6 +1,6 @@
 package message
 
-const (
+var (
 	SUCCESS = "success"
 	ERROR   = "error"
 	OK      = "ok"
@@ -10,4 +10,6 @@ const (
 	NOTFOUND           = "Not found"
 	HEALTHCHECK        = "I'm health"
 	INCOMINGREQUEST    = "Incoming Request"
+
+	USERNAMEEXIST = "username exist"
 )

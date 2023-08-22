@@ -13,9 +13,9 @@ import (
 )
 
 type testCase struct {
-	name      string
-	wantError error
-	isErr     bool
+	name                         string
+	wantError, wantErrorUsername error
+	isErr                        bool
 }
 
 var (
@@ -40,15 +40,19 @@ func TestRegisterUsecase(t *testing.T) {
 	}
 	testCase := []testCase{
 		{
-			name: "Testcase #1: Positive", wantError: nil, isErr: false,
+			name: "Testcase #1: Positive", wantError: nil, wantErrorUsername: errFoo, isErr: false,
 		},
 		{
-			name: "Testcase #2: Negative", wantError: errFoo, isErr: true,
+			name: "Testcase #2: Negative", wantError: errFoo, wantErrorUsername: errFoo, isErr: true,
+		},
+		{
+			name: "Testcase #3: Negative", wantError: nil, wantErrorUsername: nil, isErr: true,
 		},
 	}
 	for _, tt := range testCase {
 		t.Run(tt.name, func(t *testing.T) {
 			mockRepo := mockRepo.IRepository{}
+			mockRepo.On("Login", mock.Anything, mock.Anything).Return(model.User{}, tt.wantErrorUsername)
 			mockRepo.On("Register", mock.Anything, mock.Anything).Return(testUser, tt.wantError)
 			mockRepo.On("Set", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(tt.wantError)
 

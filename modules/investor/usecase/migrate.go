@@ -34,7 +34,7 @@ func (u *Usecase) MigrateInvestors(ctx context.Context) error {
 	workerInvestor3 := u.upsertInvestors(chInvestor)
 	workerInvestor4 := u.upsertInvestors(chInvestor)
 	workerInvestor5 := u.upsertInvestors(chInvestor)
-	chanInvestorSum := mergeChanInvestor(workerInvestor1, workerInvestor2, workerInvestor3, workerInvestor4, workerInvestor5)
+	chanInvestorSum := u.mergeChanInvestor(workerInvestor1, workerInvestor2, workerInvestor3, workerInvestor4, workerInvestor5)
 
 	// print output
 	counterTotal := 0
@@ -105,6 +105,28 @@ func (u *Usecase) upsertInvestors(chanIn <-chan model.Investor) <-chan model.Inv
 	return chanOut
 }
 
+func (u *Usecase) mergeChanInvestor(chanInMany ...<-chan model.Investor) <-chan model.Investor {
+	wg := new(sync.WaitGroup)
+	chanOut := make(chan model.Investor)
+
+	wg.Add(len(chanInMany))
+	for _, eachChan := range chanInMany {
+		go func(eachChan <-chan model.Investor) {
+			for eachChanData := range eachChan {
+				chanOut <- eachChanData
+			}
+			wg.Done()
+		}(eachChan)
+	}
+
+	go func() {
+		wg.Wait()
+		close(chanOut)
+	}()
+
+	return chanOut
+}
+
 func (u *Usecase) saveOutbox(ctx context.Context, now time.Time, payload []byte, investor model.Investor) (err error) {
 	outBox := model.Outbox{
 		Identifier: investor.ID,
@@ -151,26 +173,4 @@ func (u *Usecase) deleteOutbox(ctx context.Context, id int64) (err error) {
 		return
 	}
 	return
-}
-
-func mergeChanInvestor(chanInMany ...<-chan model.Investor) <-chan model.Investor {
-	wg := new(sync.WaitGroup)
-	chanOut := make(chan model.Investor)
-
-	wg.Add(len(chanInMany))
-	for _, eachChan := range chanInMany {
-		go func(eachChan <-chan model.Investor) {
-			for eachChanData := range eachChan {
-				chanOut <- eachChanData
-			}
-			wg.Done()
-		}(eachChan)
-	}
-
-	go func() {
-		wg.Wait()
-		close(chanOut)
-	}()
-
-	return chanOut
 }

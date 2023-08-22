@@ -12,6 +12,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/rzfhlv/doit/modules/user/model"
 	"github.com/rzfhlv/doit/utilities/jwt"
+	"github.com/rzfhlv/doit/utilities/message"
 	mockUsecase "github.com/rzfhlv/doit/utilities/mocks/user/usecase"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -57,6 +58,9 @@ func TestRegisterHandler(t *testing.T) {
 		{
 			name: "Testcase #4: Negative", reqBody: `{"name": "", "email": "test@example.com", "username": "testuser", "password": "secret"}`, wantError: errFoo, isErr: true, code: http.StatusBadRequest,
 		},
+		{
+			name: "Testcase #5: Negative", reqBody: `{"name": "test", "email": "test@example.com", "username": "testuser", "password": "secret"}`, wantError: errors.New(message.USERNAMEEXIST), isErr: true, code: http.StatusUnprocessableEntity,
+		},
 	}
 	for _, tt := range testCase {
 		t.Run(tt.name, func(t *testing.T) {
@@ -73,6 +77,7 @@ func TestRegisterHandler(t *testing.T) {
 			req.Header.Add(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			rec := httptest.NewRecorder()
 			ctx := e.NewContext(req, rec)
+			t.Log(tt.wantError)
 
 			err := h.Register(ctx)
 			if !tt.isErr {

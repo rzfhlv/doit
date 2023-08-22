@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/rzfhlv/doit/utilities/jwt"
 
 	logrus "github.com/rzfhlv/doit/utilities/log"
+	"github.com/rzfhlv/doit/utilities/message"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -35,6 +37,17 @@ func (u *Usecase) Register(ctx context.Context, user model.User) (result model.J
 	err = user.HashedPassword()
 	if err != nil {
 		logrus.Log(nil).Error(fmt.Sprintf("User Usecase Register Hashed Password, %v", err.Error()))
+		return
+	}
+
+	checkUser := model.Login{
+		Username: user.Username,
+		Password: user.Password,
+	}
+	_, err = u.repo.Login(ctx, checkUser)
+	if err == nil {
+		err = errors.New(message.USERNAMEEXIST)
+		logrus.Log(nil).Error(fmt.Sprintf("User Usecase Register, %v", err.Error()))
 		return
 	}
 

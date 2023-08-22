@@ -56,6 +56,10 @@ func (h *Handler) Register(e echo.Context) (err error) {
 
 	result, err := h.usecase.Register(ctx, user)
 	if err != nil {
+		if err.Error() == message.USERNAMEEXIST {
+			logrus.Log(nil).Error(fmt.Sprintf("User Handler Register Usecase, %v", err.Error()))
+			return e.JSON(http.StatusUnprocessableEntity, response.Set(message.ERROR, message.USERNAMEEXIST, nil, nil))
+		}
 		logrus.Log(nil).Error(fmt.Sprintf("User Handler Register Usecase, %v", err.Error()))
 		return e.JSON(http.StatusInternalServerError, response.Set(message.ERROR, message.SOMETHINGWENTWRONG, nil, nil))
 	}

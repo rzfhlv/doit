@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/rzfhlv/doit/modules/user/model"
+	"github.com/rzfhlv/doit/utilities/jwt"
 	mockRepo "github.com/rzfhlv/doit/utilities/mocks/user/repository"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -15,6 +16,7 @@ import (
 type testCase struct {
 	name                         string
 	wantError, wantErrorUsername error
+	token                        model.Validate
 	isErr                        bool
 }
 
@@ -94,6 +96,34 @@ func TestLoginUsecase(t *testing.T) {
 			}
 
 			_, err := u.Login(context.Background(), testLogin)
+			if !tt.isErr {
+				assert.NoError(t, err)
+			} else {
+				assert.Error(t, err)
+			}
+		})
+	}
+}
+
+func TestValidateUsecase(t *testing.T) {
+	token, _ := jwt.Generate(int64(1), "test", "test@example.com")
+	testCase := []testCase{
+		{
+			name: "Testcase #1: Positive", wantError: nil, token: model.Validate{Token: token}, isErr: false,
+		},
+		{
+			name: "Testcase #2: Negative", wantError: errFoo, token: model.Validate{Token: "invalid"}, isErr: true,
+		},
+	}
+	for _, tt := range testCase {
+		t.Run(tt.name, func(t *testing.T) {
+			mockRepo := mockRepo.IRepository{}
+
+			u := &Usecase{
+				repo: &mockRepo,
+			}
+
+			_, err := u.Validate(context.Background(), tt.token)
 			if !tt.isErr {
 				assert.NoError(t, err)
 			} else {

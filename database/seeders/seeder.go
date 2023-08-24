@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/rzfhlv/doit/config"
+	"github.com/rzfhlv/doit/utilities/faker"
 )
 
 type ISeed interface {
@@ -12,11 +13,13 @@ type ISeed interface {
 }
 
 type Seed struct {
-	cfg *config.Config
+	cfg      *config.Config
+	genrator faker.Generator
 }
 
 func NewSeed(cfg *config.Config) ISeed {
 	return &Seed{
-		cfg: cfg,
+		cfg:      cfg,
+		genrator: &faker.FakerGenerator{},
 	}
 }

@@ -10,6 +10,8 @@ var (
 	NOTFOUND           = "Not found"
 	HEALTHCHECK        = "I'm health"
 	INCOMINGREQUEST    = "Incoming Request"
+	USERNAMEEXIST      = "Username Exist"
+	INVALIDTOKEN       = "Invalid Token"
 
-	USERNAMEEXIST = "username exist"
+	ERRUSERNAMEEXIST = "username exist"
 )

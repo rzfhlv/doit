@@ -56,7 +56,7 @@ func (h *Handler) Register(e echo.Context) (err error) {
 
 	result, err := h.usecase.Register(ctx, user)
 	if err != nil {
-		if err.Error() == message.USERNAMEEXIST {
+		if err.Error() == message.ERRUSERNAMEEXIST {
 			logrus.Log(nil).Error(fmt.Sprintf("User Handler Register Usecase, %v", err.Error()))
 			return e.JSON(http.StatusUnprocessableEntity, response.Set(message.ERROR, message.USERNAMEEXIST, nil, nil))
 		}
@@ -113,7 +113,7 @@ func (h *Handler) Validate(e echo.Context) (err error) {
 	result, err := h.usecase.Validate(ctx, validate)
 	if err != nil {
 		logrus.Log(nil).Error(fmt.Sprintf("User Handler Validate Usecase, %v", err.Error()))
-		return e.JSON(http.StatusInternalServerError, response.Set(message.ERROR, message.SOMETHINGWENTWRONG, nil, nil))
+		return e.JSON(http.StatusUnauthorized, response.Set(message.ERROR, message.INVALIDTOKEN, nil, nil))
 	}
 	return e.JSON(http.StatusOK, response.Set(message.OK, message.SUCCESS, nil, result))
 }

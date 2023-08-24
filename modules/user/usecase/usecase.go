@@ -46,7 +46,7 @@ func (u *Usecase) Register(ctx context.Context, user model.User) (result model.J
 	}
 	_, err = u.repo.Login(ctx, checkUser)
 	if err == nil {
-		err = errors.New(message.USERNAMEEXIST)
+		err = errors.New(message.ERRUSERNAMEEXIST)
 		logrus.Log(nil).Error(fmt.Sprintf("User Usecase Register, %v", err.Error()))
 		return
 	}

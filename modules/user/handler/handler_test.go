@@ -59,7 +59,7 @@ func TestRegisterHandler(t *testing.T) {
 			name: "Testcase #4: Negative", reqBody: `{"name": "", "email": "test@example.com", "username": "testuser", "password": "secret"}`, wantError: errFoo, isErr: true, code: http.StatusBadRequest,
 		},
 		{
-			name: "Testcase #5: Negative", reqBody: `{"name": "test", "email": "test@example.com", "username": "testuser", "password": "secret"}`, wantError: errors.New(message.USERNAMEEXIST), isErr: true, code: http.StatusUnprocessableEntity,
+			name: "Testcase #5: Negative", reqBody: `{"name": "test", "email": "test@example.com", "username": "testuser", "password": "secret"}`, wantError: errors.New(message.ERRUSERNAMEEXIST), isErr: true, code: http.StatusUnprocessableEntity,
 		},
 	}
 	for _, tt := range testCase {
@@ -139,7 +139,7 @@ func TestValidateUsecase(t *testing.T) {
 			name: "Testcase #1: Positive", reqBody: `{"token": "thisistoken"}`, wantError: nil, isErr: false, code: http.StatusOK,
 		},
 		{
-			name: "Testcase #2: Negative", reqBody: `{"token": "thisistoken"}`, wantError: errFoo, isErr: true, code: http.StatusInternalServerError,
+			name: "Testcase #2: Negative", reqBody: `{"token": "thisistoken"}`, wantError: errFoo, isErr: true, code: http.StatusUnauthorized,
 		},
 		{
 			name: "Testcase #3: Negative", reqBody: `{"token": 123}`, wantError: errFoo, isErr: true, code: http.StatusUnprocessableEntity,

@@ -8,7 +8,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/rzfhlv/doit/config"
-	mockHandler "github.com/rzfhlv/doit/utilities/mocks/health-check/handler"
+	mockHandler "github.com/rzfhlv/doit/shared/mocks/modules/health-check/handler"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

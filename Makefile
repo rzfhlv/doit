@@ -8,9 +8,10 @@ down:
 	docker-compose down
 
 mocks:
-	@mockery --all --keeptree --dir=modules --output=utilities/mocks --case underscore
-	@mockery --all --keeptree --dir=middleware --output=utilities/mocks --case underscore
-	@mockery --all --keeptree --dir=database --output=utilities/mocks --case underscore
+	@mockery --all --keeptree --dir=modules --output=shared/mocks/modules --case underscore
+	@mockery --all --keeptree --dir=middleware --output=shared/mocks/middleware --case underscore
+	@mockery --all --keeptree --dir=database --output=shared/mocks/database --case underscore
+	@mockery --all --keeptree --dir=utilities --output=shared/mocks/utilities --case underscore
 
 test:
 	@go test ./... -short -cover

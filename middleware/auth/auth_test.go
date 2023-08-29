@@ -8,17 +8,24 @@ import (
 
 	"github.com/go-redis/redismock/v9"
 	"github.com/labstack/echo/v4"
+	"github.com/rzfhlv/doit/config"
 	"github.com/rzfhlv/doit/utilities/jwt"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAuthMiddleware(t *testing.T) {
-	token, _ := jwt.Generate(int64(1), "test", "test@example.com")
+	jwtImpl := jwt.JWTImpl{}
+	token, _ := jwtImpl.Generate(int64(1), "test", "test@example.com")
 	client, mock := redismock.NewClientMock()
 	mock.ExpectGet(token).SetVal("test")
 
+	cfg := config.Config{
+		Redis:   client,
+		JWTImpl: &jwtImpl,
+	}
+
 	e := echo.New()
-	auth := NewAuth(client)
+	auth := NewAuth(&cfg)
 	e.Use(auth.Bearer)
 
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -41,12 +48,18 @@ func TestAuthMiddleware(t *testing.T) {
 }
 
 func TestFailAuthMiddleware(t *testing.T) {
+	jwtImpl := jwt.JWTImpl{}
 	token := "invalid-token"
 	client, mock := redismock.NewClientMock()
 	mock.ExpectGet(token).SetErr(errors.New("error"))
 
+	cfg := config.Config{
+		Redis:   client,
+		JWTImpl: &jwtImpl,
+	}
+
 	e := echo.New()
-	auth := NewAuth(client)
+	auth := NewAuth(&cfg)
 	e.Use(auth.Bearer)
 
 	req := httptest.NewRequest(http.MethodGet, "/", nil)

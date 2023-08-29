@@ -25,7 +25,7 @@ type User struct {
 
 func NewUser(cfg *config.Config) *User {
 	Repo := repository.NewRepository(cfg.Postgres, cfg.Redis)
-	Usecase := usecase.NewUsecase(Repo)
+	Usecase := usecase.NewUsecase(Repo, cfg.JWTImpl, cfg.Utils.Hasher)
 	Handler := handler.NewHandler(Usecase)
 
 	return &User{

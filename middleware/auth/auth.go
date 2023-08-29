@@ -6,7 +6,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/rzfhlv/doit/utilities/jwt"
+	"github.com/rzfhlv/doit/config"
+	uJwt "github.com/rzfhlv/doit/utilities/jwt"
 	"github.com/rzfhlv/doit/utilities/message"
 	"github.com/rzfhlv/doit/utilities/response"
 
@@ -29,12 +30,14 @@ type IAuth interface {
 }
 
 type Auth struct {
-	redis *redis.Client
+	redis   *redis.Client
+	jwtImpl uJwt.JWTInterface
 }
 
-func NewAuth(redis *redis.Client) IAuth {
+func NewAuth(cfg *config.Config) IAuth {
 	return &Auth{
-		redis: redis,
+		redis:   cfg.Redis,
+		jwtImpl: cfg.JWTImpl,
 	}
 }
 
@@ -56,7 +59,7 @@ func (am *Auth) Bearer(next echo.HandlerFunc) echo.HandlerFunc {
 			return c.JSON(http.StatusUnauthorized, response.Set(message.ERROR, message.UNAUTHORIZED, nil, nil))
 		}
 
-		claims, err := jwt.ValidateToken(split[1])
+		claims, err := am.jwtImpl.ValidateToken(split[1])
 		if err != nil {
 			logrus.Log(nil).Error(fmt.Sprintf("Auth Validation Invalid, %v", err.Error()))
 			return c.JSON(http.StatusUnauthorized, response.Set(message.ERROR, message.UNAUTHORIZED, nil, nil))

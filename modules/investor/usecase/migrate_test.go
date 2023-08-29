@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/rzfhlv/doit/modules/investor/model"
-	mockRepo "github.com/rzfhlv/doit/utilities/mocks/investor/repository"
+	mockRepo "github.com/rzfhlv/doit/shared/mocks/modules/investor/repository"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

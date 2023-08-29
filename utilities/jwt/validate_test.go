@@ -7,9 +7,10 @@ import (
 )
 
 func TestValidateToken_Valid(t *testing.T) {
-	validToken, _ := Generate(123, "testuser", "test@example.com")
+	jwtImpl := JWTImpl{}
+	validToken, _ := jwtImpl.Generate(123, "testuser", "test@example.com")
 
-	claims, err := ValidateToken(validToken)
+	claims, err := jwtImpl.ValidateToken(validToken)
 	assert.NoError(t, err)
 	assert.NotNil(t, claims)
 	assert.Equal(t, int64(123), claims.ID)
@@ -20,7 +21,8 @@ func TestValidateToken_Valid(t *testing.T) {
 func TestValidateToken_Invalid(t *testing.T) {
 	invalidToken := "invalidtoken"
 
-	claims, err := ValidateToken(invalidToken)
+	jwtImpl := JWTImpl{}
+	claims, err := jwtImpl.ValidateToken(invalidToken)
 	assert.Error(t, err)
 	assert.Error(t, err)
 	assert.Nil(t, claims)

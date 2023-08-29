@@ -8,7 +8,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/rzfhlv/doit/modules/person/model"
-	mockUsecase "github.com/rzfhlv/doit/utilities/mocks/person/usecase"
+	mockUsecase "github.com/rzfhlv/doit/shared/mocks/modules/person/usecase"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"go.mongodb.org/mongo-driver/mongo"

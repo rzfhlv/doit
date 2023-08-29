@@ -1,10 +1,9 @@
 package middleware
 
 import (
+	"github.com/rzfhlv/doit/config"
 	"github.com/rzfhlv/doit/middleware/auth"
 	"github.com/rzfhlv/doit/middleware/log"
-
-	"github.com/redis/go-redis/v9"
 )
 
 type Middleware struct {
@@ -12,8 +11,8 @@ type Middleware struct {
 	Log  log.ILog
 }
 
-func NewMiddleware(redis *redis.Client) *Middleware {
-	auth := auth.NewAuth(redis)
+func NewMiddleware(cfg *config.Config) *Middleware {
+	auth := auth.NewAuth(cfg)
 	log := log.NewLog()
 
 	return &Middleware{

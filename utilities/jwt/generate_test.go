@@ -16,7 +16,9 @@ func TestGenerate(t *testing.T) {
 	username := "testuser"
 	email := "test@example.com"
 
-	tokenString, err := Generate(id, username, email)
+	jwtImpl := JWTImpl{}
+
+	tokenString, err := jwtImpl.Generate(id, username, email)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, tokenString)
 

@@ -5,6 +5,8 @@ import (
 	"os"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/rzfhlv/doit/utilities/hasher"
+	uJwt "github.com/rzfhlv/doit/utilities/jwt"
 	logrus "github.com/rzfhlv/doit/utilities/log"
 
 	"github.com/joho/godotenv"
@@ -20,6 +22,13 @@ type Config struct {
 	Postgres *sqlx.DB
 	Mongo    *mongo.Database
 	Redis    *redis.Client
+	JWTImpl  uJwt.JWTInterface
+	Utils    Utils
+}
+
+type Utils struct {
+	JWTImpl uJwt.JWTInterface
+	Hasher  hasher.HashPassword
 }
 
 func Init() *Config {
@@ -51,9 +60,17 @@ func Init() *Config {
 		os.Exit(1)
 	}
 
+	jwtImpl := uJwt.JWTImpl{}
+	hasher := hasher.HasherPassword{}
+
 	return &Config{
 		Postgres: postgres.GetDB(),
 		Mongo:    mongo.GetDB(),
 		Redis:    redis.GetClient(),
+		JWTImpl:  &jwtImpl,
+		Utils: Utils{
+			JWTImpl: &jwtImpl,
+			Hasher:  &hasher,
+		},
 	}
 }

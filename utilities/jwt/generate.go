@@ -17,7 +17,7 @@ type JWTClaim struct {
 	jwt.RegisteredClaims
 }
 
-func Generate(id int64, username, email string) (tokenString string, err error) {
+func (j *JWTImpl) Generate(id int64, username, email string) (tokenString string, err error) {
 	expirationTime := time.Now().Add(1 * time.Hour)
 	claims := &JWTClaim{
 		ID:       id,

@@ -7,8 +7,8 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/rzfhlv/doit/config"
-	mockAuth "github.com/rzfhlv/doit/utilities/mocks/auth"
-	mockHandler "github.com/rzfhlv/doit/utilities/mocks/investor/handler"
+	mockAuth "github.com/rzfhlv/doit/shared/mocks/middleware/auth"
+	mockHandler "github.com/rzfhlv/doit/shared/mocks/modules/investor/handler"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

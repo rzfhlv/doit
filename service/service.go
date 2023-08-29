@@ -23,7 +23,7 @@ func NewService(cfg *config.Config) *Service {
 	userModule := user.NewUser(cfg)
 	healthCheckModule := hc.NewHealthCheck(cfg)
 
-	middleware := middleware.NewMiddleware(cfg.Redis)
+	middleware := middleware.NewMiddleware(cfg)
 
 	return &Service{
 		Investor:    investorModule,

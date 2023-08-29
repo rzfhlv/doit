@@ -11,9 +11,9 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/rzfhlv/doit/modules/user/model"
+	mockUsecase "github.com/rzfhlv/doit/shared/mocks/modules/user/usecase"
 	"github.com/rzfhlv/doit/utilities/jwt"
 	"github.com/rzfhlv/doit/utilities/message"
-	mockUsecase "github.com/rzfhlv/doit/utilities/mocks/user/usecase"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

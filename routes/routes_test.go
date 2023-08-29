@@ -24,7 +24,7 @@ func TestRoutes(t *testing.T) {
 		Person:      person.NewPerson(&cfg),
 		User:        user.NewUser(&cfg),
 		HealthCheck: hc.NewHealthCheck(&cfg),
-		Middleware:  middleware.NewMiddleware(cfg.Redis),
+		Middleware:  middleware.NewMiddleware(&cfg),
 	}
 	r := ListRoutes(&service)
 	assert.NotNil(t, r)

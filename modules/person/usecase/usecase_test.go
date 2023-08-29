@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/rzfhlv/doit/modules/person/model"
-	mockRepo "github.com/rzfhlv/doit/utilities/mocks/person/repository"
+	mockRepo "github.com/rzfhlv/doit/shared/mocks/modules/person/repository"
 	"github.com/rzfhlv/doit/utilities/param"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"

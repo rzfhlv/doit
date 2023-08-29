@@ -8,6 +8,7 @@ import (
 
 	"github.com/rzfhlv/doit/modules/user/model"
 	"github.com/rzfhlv/doit/modules/user/repository"
+	"github.com/rzfhlv/doit/utilities/hasher"
 	"github.com/rzfhlv/doit/utilities/jwt"
 
 	logrus "github.com/rzfhlv/doit/utilities/log"
@@ -24,21 +25,26 @@ type IUsecase interface {
 }
 
 type Usecase struct {
-	repo repository.IRepository
+	repo    repository.IRepository
+	jwtImpl jwt.JWTInterface
+	hasher  hasher.HashPassword
 }
 
-func NewUsecase(repo repository.IRepository) IUsecase {
+func NewUsecase(repo repository.IRepository, jwtImpl jwt.JWTInterface, hasher hasher.HashPassword) IUsecase {
 	return &Usecase{
-		repo: repo,
+		repo:    repo,
+		jwtImpl: jwtImpl,
+		hasher:  hasher,
 	}
 }
 
 func (u *Usecase) Register(ctx context.Context, user model.User) (result model.JWT, err error) {
-	err = user.HashedPassword()
+	hashPassword, err := u.hasher.HashedPassword(user.Password)
 	if err != nil {
 		logrus.Log(nil).Error(fmt.Sprintf("User Usecase Register Hashed Password, %v", err.Error()))
 		return
 	}
+	user.Password = hashPassword
 
 	checkUser := model.Login{
 		Username: user.Username,
@@ -57,7 +63,7 @@ func (u *Usecase) Register(ctx context.Context, user model.User) (result model.J
 		return
 	}
 
-	token, err := jwt.Generate(data.ID, data.Username, data.Email)
+	token, err := u.jwtImpl.Generate(data.ID, data.Username, data.Email)
 	if err != nil {
 		logrus.Log(nil).Error(fmt.Sprintf("User Usecase Register Generate JWT, %v", err.Error()))
 		return
@@ -81,13 +87,13 @@ func (u *Usecase) Login(ctx context.Context, login model.Login) (result model.JW
 		return
 	}
 
-	err = data.VerifyPassword(login.Password)
+	err = u.hasher.VerifyPassword(data.Password, login.Password)
 	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
 		logrus.Log(nil).Error(fmt.Sprintf("User Usecase Login Verify Password, %v", err.Error()))
 		return
 	}
 
-	token, err := jwt.Generate(data.ID, data.Username, data.Email)
+	token, err := u.jwtImpl.Generate(data.ID, data.Username, data.Email)
 	if err != nil {
 		logrus.Log(nil).Error(fmt.Sprintf("User Usecase Login Generate JWT, %v", err.Error()))
 		return
@@ -105,7 +111,7 @@ func (u *Usecase) Login(ctx context.Context, login model.Login) (result model.JW
 }
 
 func (u *Usecase) Validate(ctx context.Context, validate model.Validate) (result *jwt.JWTClaim, err error) {
-	result, err = jwt.ValidateToken(validate.Token)
+	result, err = u.jwtImpl.ValidateToken(validate.Token)
 	if err != nil {
 		logrus.Log(nil).Error(fmt.Sprintf("User Usecase Validate, %v", err.Error()))
 		return

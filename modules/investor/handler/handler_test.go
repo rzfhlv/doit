@@ -9,7 +9,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/rzfhlv/doit/modules/investor/model"
-	mockUsecase "github.com/rzfhlv/doit/utilities/mocks/investor/usecase"
+	mockUsecase "github.com/rzfhlv/doit/shared/mocks/modules/investor/usecase"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

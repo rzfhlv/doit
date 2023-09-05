@@ -11,6 +11,7 @@ import (
 
 func TestGenerate(t *testing.T) {
 	_ = os.Setenv("JWT_SECRET", "verysecret")
+	_ = os.Setenv("JWT_EXPIRED", "1")
 
 	id := int64(123)
 	username := "testuser"

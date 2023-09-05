@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/go-redis/redismock/v9"
@@ -11,6 +12,11 @@ import (
 	"github.com/rzfhlv/doit/config"
 	"github.com/rzfhlv/doit/utilities/jwt"
 	"github.com/stretchr/testify/assert"
+)
+
+var (
+	_ = os.Setenv("JWT_SECRET", "verysecret")
+	_ = os.Setenv("JWT_EXPIRED", "1")
 )
 
 func TestAuthMiddleware(t *testing.T) {

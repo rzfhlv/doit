@@ -1,12 +1,16 @@
 package jwt
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestValidateToken_Valid(t *testing.T) {
+	_ = os.Setenv("JWT_SECRET", "verysecret")
+	_ = os.Setenv("JWT_EXPIRED", "1")
+
 	jwtImpl := JWTImpl{}
 	validToken, _ := jwtImpl.Generate(123, "testuser", "test@example.com")
 

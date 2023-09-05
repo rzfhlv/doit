@@ -1,9 +1,13 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
+	"net/http"
 	"os"
+	"os/signal"
+	"time"
 
 	"github.com/rzfhlv/doit/config"
 	"github.com/rzfhlv/doit/database"
@@ -39,5 +43,20 @@ func main() {
 	// s.Every(10).Seconds().Do(svc.Investor.MigrateInvestors, context.Background())
 	// <-s.Start()
 
-	e.Start(fmt.Sprintf(":%s", os.Getenv("APP_PORT")))
+	// start server
+	go func() {
+		if err := e.Start(fmt.Sprintf(":%s", os.Getenv("APP_PORT"))); err != nil && err != http.ErrServerClosed {
+			e.Logger.Fatal("shutting down the server")
+		}
+	}()
+
+	// graceful shutdown
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := e.Shutdown(ctx); err != nil {
+		e.Logger.Fatal(err)
+	}
 }

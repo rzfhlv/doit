@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 type CustomValidator struct {
@@ -21,6 +22,7 @@ func (cv CustomValidator) Validate(i interface{}) error {
 
 func ListRoutes(svc *service.Service) (e *echo.Echo) {
 	e = echo.New()
+	e.Use(middleware.Recover())
 	e.Use(svc.Middleware.Log.Logrus)
 	e.Validator = &CustomValidator{validator: validator.New()}
 

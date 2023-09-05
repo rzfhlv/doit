@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/rzfhlv/doit/modules/user/model"
@@ -76,7 +77,7 @@ func (u *Usecase) Register(ctx context.Context, user model.User) (result model.J
 	}
 
 	result.Token = token
-	result.Expired = "1 Hour"
+	result.Expired = fmt.Sprintf("%s Hour", os.Getenv("JWT_EXPIRED"))
 	return
 }
 
@@ -106,7 +107,7 @@ func (u *Usecase) Login(ctx context.Context, login model.Login) (result model.JW
 	}
 
 	result.Token = token
-	result.Expired = "1 Hour"
+	result.Expired = fmt.Sprintf("%s Hour", os.Getenv("JWT_EXPIRED"))
 	return
 }
 

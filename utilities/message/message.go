@@ -7,7 +7,7 @@ var (
 
 	UNAUTHORIZED       = "Unauthorized"
 	SOMETHINGWENTWRONG = "Something went wrong"
-	NOTFOUND           = "Not found"
+	NOTFOUND           = "Data Not found"
 	HEALTHCHECK        = "I'm health"
 	INCOMINGREQUEST    = "Incoming Request"
 	USERNAMEEXIST      = "Username Exist"

@@ -11,11 +11,11 @@ import (
 )
 
 type IRepository interface {
-	SaveMongo(ctx context.Context, investor model.Investor) error
-	UpsertMongo(ctx context.Context, investor model.Investor) error
-	UpsertOutbox(ctx context.Context, outbox model.Outbox) error
-	DeleteOutbox(ctx context.Context, identifier int64) error
-	GetPsql(ctx context.Context) ([]model.Investor, error)
+	SaveMongo(ctx context.Context, investor model.Investor) (err error)
+	UpsertMongo(ctx context.Context, investor model.Investor) (err error)
+	UpsertOutbox(ctx context.Context, outbox model.Outbox) (err error)
+	DeleteOutbox(ctx context.Context, identifier int64) (err error)
+	GetPsql(ctx context.Context) (investors []model.Investor, err error)
 	GetAll(ctx context.Context, param param.Param) (investors []model.Investor, err error)
 	GetByID(ctx context.Context, id int64) (investor model.Investor, err error)
 	Count(ctx context.Context) (total int64, err error)

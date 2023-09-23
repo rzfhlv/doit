@@ -2,25 +2,24 @@ package repository
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/rzfhlv/doit/modules/investor/model"
-	logrus "github.com/rzfhlv/doit/utilities/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func (r *Repository) SaveMongo(ctx context.Context, investor model.Investor) error {
-	_, err := r.dbMongo.Collection("investors").InsertOne(ctx, investor)
-	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("Investor Repo SaveMongo, %v", err.Error()))
-		return err
-	}
-	return nil
+var (
+	INVESTORS = "investors"
+	OUTBOX    = "outbox"
+)
+
+func (r *Repository) SaveMongo(ctx context.Context, investor model.Investor) (err error) {
+	_, err = r.dbMongo.Collection(INVESTORS).InsertOne(ctx, investor)
+	return
 }
 
-func (r *Repository) UpsertMongo(ctx context.Context, investor model.Investor) error {
-	_, err := r.dbMongo.Collection("investors").
+func (r *Repository) UpsertMongo(ctx context.Context, investor model.Investor) (err error) {
+	_, err = r.dbMongo.Collection(INVESTORS).
 		UpdateOne(ctx,
 			bson.M{
 				"id": investor.ID,
@@ -30,15 +29,11 @@ func (r *Repository) UpsertMongo(ctx context.Context, investor model.Investor) e
 			}, &options.UpdateOptions{
 				Upsert: options.Update().SetUpsert(true).Upsert,
 			})
-	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("Investor Repo UpsertMongo, %v", err.Error()))
-		return err
-	}
-	return nil
+	return
 }
 
-func (r *Repository) UpsertOutbox(ctx context.Context, outbox model.Outbox) error {
-	_, err := r.dbMongo.Collection("outbox").
+func (r *Repository) UpsertOutbox(ctx context.Context, outbox model.Outbox) (err error) {
+	_, err = r.dbMongo.Collection(OUTBOX).
 		UpdateOne(ctx,
 			bson.M{
 				"identifier": outbox.Identifier,
@@ -48,18 +43,10 @@ func (r *Repository) UpsertOutbox(ctx context.Context, outbox model.Outbox) erro
 			}, &options.UpdateOptions{
 				Upsert: options.Update().SetUpsert(true).Upsert,
 			})
-	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("Investor Repo UpsertOutbox, %v", err.Error()))
-		return err
-	}
-	return nil
+	return
 }
 
-func (r *Repository) DeleteOutbox(ctx context.Context, identifier int64) error {
-	_, err := r.dbMongo.Collection("outbox").DeleteOne(ctx, bson.M{"identifier": identifier})
-	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("Investor Repo DeleteOutbox, %v", err.Error()))
-		return err
-	}
-	return nil
+func (r *Repository) DeleteOutbox(ctx context.Context, identifier int64) (err error) {
+	_, err = r.dbMongo.Collection(OUTBOX).DeleteOne(ctx, bson.M{"identifier": identifier})
+	return
 }

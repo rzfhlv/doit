@@ -11,23 +11,32 @@ import (
 	logrus "github.com/rzfhlv/doit/utilities/log"
 )
 
-func (u *Usecase) ConventionalMigrate(ctx context.Context) error {
+var (
+	INVESTOR = "INVESTOR"
+	PENDING  = "PENDING"
+	FAILED   = "FAILED"
+
+	UPSERTMONGOLOG  = "Investor Usecase UpsertMongo"
+	MARSHALLOG      = "Investor Usecase upsertInvestor Marshal"
+	GETINVESTORSLOG = "Investor Usecase getInvestors"
+	DATAMIGRATED    = "Data Migrated"
+)
+
+func (u *Usecase) ConventionalMigrate(ctx context.Context) (err error) {
 	investors, err := u.repo.GetPsql(ctx)
 	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("Investor ConventionalMigrate, %v", err.Error()))
-		return err
+		return
 	}
 	for _, investor := range investors {
 		err = u.repo.UpsertMongo(ctx, investor)
 		if err != nil {
-			logrus.Log(nil).Error(fmt.Sprintf("Upsert Mongo ConventionalMigrate, %v", err.Error()))
-			return err
+			return
 		}
 	}
-	return nil
+	return
 }
 
-func (u *Usecase) MigrateInvestors(ctx context.Context) error {
+func (u *Usecase) MigrateInvestors(ctx context.Context) (err error) {
 	chInvestor := u.getInvestors()
 	workerInvestor1 := u.upsertInvestors(chInvestor)
 	workerInvestor2 := u.upsertInvestors(chInvestor)
@@ -43,9 +52,9 @@ func (u *Usecase) MigrateInvestors(ctx context.Context) error {
 			counterTotal++
 		}
 	}
-	logrus.Log(nil).Info(fmt.Sprintf("Investor Usecase MigrateInvestors, %d Data Migrated", counterTotal))
+	logrus.Log(nil).Info(fmt.Sprintf("%d "+DATAMIGRATED, counterTotal))
 
-	return nil
+	return
 }
 
 func (u *Usecase) getInvestors() <-chan model.Investor {
@@ -54,7 +63,7 @@ func (u *Usecase) getInvestors() <-chan model.Investor {
 	go func() {
 		investors, err := u.repo.GetPsql(context.Background())
 		if err != nil {
-			logrus.Log(nil).Error(fmt.Sprintf("Investor Usecase getInvestors, %v", err.Error()))
+			logrus.Log(nil).Error(fmt.Sprintf(GETINVESTORSLOG+" %v", err.Error()))
 			return
 		}
 		for _, investor := range investors {
@@ -76,7 +85,7 @@ func (u *Usecase) upsertInvestors(chanIn <-chan model.Investor) <-chan model.Inv
 			now := time.Now()
 			payload, err := json.Marshal(investor)
 			if err != nil {
-				logrus.Log(nil).Error(fmt.Sprintf("Investor Usecase upsertInvestor Marshal, %v", err.Error()))
+				logrus.Log(nil).Error(fmt.Sprintf(MARSHALLOG+" %v", err.Error()))
 				return
 			}
 
@@ -131,36 +140,28 @@ func (u *Usecase) saveOutbox(ctx context.Context, now time.Time, payload []byte,
 	outBox := model.Outbox{
 		Identifier: investor.ID,
 		Payload:    string(payload),
-		Event:      "INVESTOR",
-		Status:     "PENDING",
+		Event:      INVESTOR,
+		Status:     PENDING,
 		CreatedAt:  now,
 		UpdatedAt:  now,
 	}
 	err = u.repo.UpsertOutbox(ctx, outBox)
-	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("Investor Usecase UpsertOutbox, %v", err.Error()))
-		return
-	}
 	return
 }
 
 func (u *Usecase) upsertMongo(ctx context.Context, now time.Time, payload []byte, investor model.Investor) (err error) {
 	err = u.repo.UpsertMongo(ctx, investor)
 	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("Investor Usecase UpsertMong, %v", err.Error()))
+		logrus.Log(nil).Error(fmt.Sprintf(UPSERTMONGOLOG+" %v", err.Error()))
 		outBox := model.Outbox{
 			Identifier: investor.ID,
 			Payload:    string(payload),
-			Event:      "INVESTOR",
-			Status:     "FAILED",
+			Event:      INVESTOR,
+			Status:     FAILED,
 			CreatedAt:  now,
 			UpdatedAt:  now,
 		}
 		err = u.repo.UpsertOutbox(ctx, outBox)
-		if err != nil {
-			logrus.Log(nil).Error(fmt.Sprintf("Investor Usecase UpsertOutbox, %v", err.Error()))
-			return
-		}
 		return
 	}
 	return
@@ -168,9 +169,5 @@ func (u *Usecase) upsertMongo(ctx context.Context, now time.Time, payload []byte
 
 func (u *Usecase) deleteOutbox(ctx context.Context, id int64) (err error) {
 	err = u.repo.DeleteOutbox(ctx, id)
-	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("Investor Usecase DeleteOutbox, %v", err.Error()))
-		return
-	}
 	return
 }

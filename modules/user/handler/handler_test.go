@@ -104,7 +104,7 @@ func TestLoginHandler(t *testing.T) {
 			name: "Testcase #4: Negative", reqBody: `{"username": "", "password": "password"}`, wantError: errFoo, isErr: true, code: http.StatusBadRequest,
 		},
 		{
-			name: "Testcase #5: Negative", reqBody: `{"username": "testuser", "password": "password"}`, wantError: sql.ErrNoRows, isErr: true, code: http.StatusBadRequest,
+			name: "Testcase #5: Negative", reqBody: `{"username": "testuser", "password": "password"}`, wantError: sql.ErrNoRows, isErr: true, code: http.StatusUnauthorized,
 		},
 	}
 	for _, tt := range testCase {
@@ -145,7 +145,7 @@ func TestValidateUsecase(t *testing.T) {
 			name: "Testcase #3: Negative", reqBody: `{"token": 123}`, wantError: errFoo, isErr: true, code: http.StatusUnprocessableEntity,
 		},
 		{
-			name: "Testcase #3: Negative", reqBody: `{"token": ""}`, wantError: errFoo, isErr: true, code: http.StatusBadRequest,
+			name: "Testcase #4: Negative", reqBody: `{"token": ""}`, wantError: errFoo, isErr: true, code: http.StatusBadRequest,
 		},
 	}
 	for _, tt := range testCase {

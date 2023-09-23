@@ -22,7 +22,13 @@ const (
 	EMAIL    = "email"
 	USERNAME = "username"
 
-	BEARER = "Bearer"
+	BEARER        = "Bearer"
+	AUTHORIZATION = "Authorization"
+
+	UNSUPPORTEDTOKENLOG  = "Auth Unsupported Token"
+	EMPTYTOKENLOG        = "Auth Empty Token"
+	VALIDATIONINVALIDLOG = "Auth Validation Invalid"
+	REDISLOG             = "Auth Redis Key Deleted"
 )
 
 type IAuth interface {
@@ -43,31 +49,31 @@ func NewAuth(cfg *config.Config) IAuth {
 
 func (am *Auth) Bearer(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		split := strings.Split(c.Request().Header.Get("Authorization"), " ")
+		split := strings.Split(c.Request().Header.Get(AUTHORIZATION), " ")
 		if len(split) < 2 {
-			logrus.Log(nil).Error(fmt.Sprintf("Auth Unsupported Token: %v", len(split)))
+			logrus.Log(nil).Error(fmt.Sprintf(UNSUPPORTEDTOKENLOG+" %v", len(split)))
 			return c.JSON(http.StatusUnauthorized, response.Set(message.ERROR, message.UNAUTHORIZED, nil, nil))
 		}
 
 		if split[0] != BEARER {
-			logrus.Log(nil).Error(fmt.Sprintf("Auth Unsupported Token: %v", split[0]))
+			logrus.Log(nil).Error(fmt.Sprintf(UNSUPPORTEDTOKENLOG+" %v", split[0]))
 			return c.JSON(http.StatusUnauthorized, response.Set(message.ERROR, message.UNAUTHORIZED, nil, nil))
 		}
 
 		if split[1] == "" {
-			logrus.Log(nil).Error(fmt.Sprintf("Auth Empty Token: %v", split[1]))
+			logrus.Log(nil).Error(fmt.Sprintf(EMPTYTOKENLOG+" %v", split[1]))
 			return c.JSON(http.StatusUnauthorized, response.Set(message.ERROR, message.UNAUTHORIZED, nil, nil))
 		}
 
 		claims, err := am.jwtImpl.ValidateToken(split[1])
 		if err != nil {
-			logrus.Log(nil).Error(fmt.Sprintf("Auth Validation Invalid, %v", err.Error()))
+			logrus.Log(nil).Error(fmt.Sprintf(VALIDATIONINVALIDLOG+" %v", err.Error()))
 			return c.JSON(http.StatusUnauthorized, response.Set(message.ERROR, message.UNAUTHORIZED, nil, nil))
 		}
 
 		err = am.redis.Get(context.Background(), split[1]).Err()
 		if err != nil {
-			logrus.Log(nil).Error(fmt.Sprintf("Auth Redis Key Deleted, %v", err.Error()))
+			logrus.Log(nil).Error(fmt.Sprintf(REDISLOG+" %v", err.Error()))
 			return c.JSON(http.StatusUnauthorized, response.Set(message.ERROR, message.UNAUTHORIZED, nil, nil))
 		}
 

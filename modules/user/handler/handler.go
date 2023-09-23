@@ -19,6 +19,25 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+var (
+	REGISTERBINDINGLOG    = "User Handler Register Binding"
+	REGISTERVALIDATIONLOG = "User Handler Register Validation"
+	REGISTERLOG           = "User Handler Register Usecase"
+
+	LOGINBINDINGLOG    = "User Handler Login Binding"
+	LOGINVALIDATIONLOG = "User Handler Login Validation"
+	LOGINLOG           = "User Handler Login Usecase"
+
+	VALIDATEBINDINGLOG    = "User Handler Validate Binding"
+	VALIDATEVALIDATIONLOG = "User Handler Validate Validation"
+	VALIDATELOG           = "User Handler Validate Usecase"
+
+	TOKENINVALIDLOG = "User Handler Split Token Invalid"
+	LOGOUTLOG       = "User Handler Logout"
+
+	AUTHORIZATION = "Authorization"
+)
+
 type IHandler interface {
 	Register(e echo.Context) (err error)
 	Login(e echo.Context) (err error)
@@ -42,13 +61,13 @@ func (h *Handler) Register(e echo.Context) (err error) {
 	user := model.User{}
 	err = e.Bind(&user)
 	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("User Handler Register Binding, %v", err.Error()))
+		logrus.Log(nil).Error(fmt.Sprintf(REGISTERBINDINGLOG+" %v", err.Error()))
 		return e.JSON(http.StatusUnprocessableEntity, response.Set(message.ERROR, err.Error(), nil, nil))
 	}
 
 	err = e.Validate(user)
 	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("User Handler Register Validation: %v", err.Error()))
+		logrus.Log(nil).Error(fmt.Sprintf(REGISTERVALIDATIONLOG+" %v", err.Error()))
 		return e.JSON(http.StatusBadRequest, response.Set(message.ERROR, err.Error(), nil, nil))
 	}
 	user.CreatedAt = time.Now()
@@ -56,10 +75,10 @@ func (h *Handler) Register(e echo.Context) (err error) {
 	result, err := h.usecase.Register(ctx, user)
 	if err != nil {
 		if err.Error() == message.ERRUSERNAMEEXIST {
-			logrus.Log(nil).Error(fmt.Sprintf("User Handler Register Usecase, %v", err.Error()))
+			logrus.Log(nil).Error(fmt.Sprintf(REGISTERLOG+" %v", err.Error()))
 			return e.JSON(http.StatusUnprocessableEntity, response.Set(message.ERROR, message.USERNAMEEXIST, nil, nil))
 		}
-		logrus.Log(nil).Error(fmt.Sprintf("User Handler Register Usecase, %v", err.Error()))
+		logrus.Log(nil).Error(fmt.Sprintf(REGISTERLOG+" %v", err.Error()))
 		return e.JSON(http.StatusInternalServerError, response.Set(message.ERROR, message.SOMETHINGWENTWRONG, nil, nil))
 	}
 	return e.JSON(http.StatusOK, response.Set(message.OK, message.SUCCESS, nil, result))
@@ -71,23 +90,23 @@ func (h *Handler) Login(e echo.Context) (err error) {
 	login := model.Login{}
 	err = e.Bind(&login)
 	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("User Handler Login Binding, %v", err.Error()))
+		logrus.Log(nil).Error(fmt.Sprintf(LOGINBINDINGLOG+" %v", err.Error()))
 		return e.JSON(http.StatusUnprocessableEntity, response.Set(message.ERROR, err.Error(), nil, nil))
 	}
 
 	err = e.Validate(login)
 	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("User Handler Login Validation, %v", err.Error()))
+		logrus.Log(nil).Error(fmt.Sprintf(LOGINVALIDATIONLOG+" %v", err.Error()))
 		return e.JSON(http.StatusBadRequest, response.Set(message.ERROR, err.Error(), nil, nil))
 	}
 
 	result, err := h.usecase.Login(ctx, login)
 	if err != nil {
 		if err == sql.ErrNoRows || err == bcrypt.ErrMismatchedHashAndPassword {
-			logrus.Log(nil).Error(fmt.Sprintf("User Handler Login Usecase, %v", err.Error()))
-			return e.JSON(http.StatusBadRequest, response.Set(message.ERROR, message.SOMETHINGWENTWRONG, nil, nil))
+			logrus.Log(nil).Error(fmt.Sprintf(LOGINLOG+" %v", err.Error()))
+			return e.JSON(http.StatusUnauthorized, response.Set(message.ERROR, message.UNAUTHORIZED, nil, nil))
 		}
-		logrus.Log(nil).Error(fmt.Sprintf("User Handler Login Usecase, %v", err.Error()))
+		logrus.Log(nil).Error(fmt.Sprintf(LOGINLOG+" %v", err.Error()))
 		return e.JSON(http.StatusInternalServerError, response.Set(message.ERROR, message.SOMETHINGWENTWRONG, nil, nil))
 	}
 	return e.JSON(http.StatusOK, response.Set(message.OK, message.SUCCESS, nil, result))
@@ -99,19 +118,19 @@ func (h *Handler) Validate(e echo.Context) (err error) {
 	validate := model.Validate{}
 	err = e.Bind(&validate)
 	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("User Handler Validate Binding, %v", err.Error()))
+		logrus.Log(nil).Error(fmt.Sprintf(VALIDATEBINDINGLOG+" %v", err.Error()))
 		return e.JSON(http.StatusUnprocessableEntity, response.Set(message.ERROR, err.Error(), nil, nil))
 	}
 
 	err = e.Validate(validate)
 	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("User Handler Validate Validation, %v", err.(validator.ValidationErrors)))
+		logrus.Log(nil).Error(fmt.Sprintf(VALIDATEVALIDATIONLOG+" %v", err.(validator.ValidationErrors)))
 		return e.JSON(http.StatusBadRequest, response.Set(message.ERROR, err.Error(), nil, nil))
 	}
 
 	result, err := h.usecase.Validate(ctx, validate)
 	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("User Handler Validate Usecase, %v", err.Error()))
+		logrus.Log(nil).Error(fmt.Sprintf(VALIDATELOG+" %v", err.Error()))
 		return e.JSON(http.StatusUnauthorized, response.Set(message.ERROR, message.INVALIDTOKEN, nil, nil))
 	}
 	return e.JSON(http.StatusOK, response.Set(message.OK, message.SUCCESS, nil, result))
@@ -120,15 +139,15 @@ func (h *Handler) Validate(e echo.Context) (err error) {
 func (h *Handler) Logout(e echo.Context) (err error) {
 	ctx := e.Request().Context()
 
-	split := strings.Split(e.Request().Header.Get("Authorization"), " ")
+	split := strings.Split(e.Request().Header.Get(AUTHORIZATION), " ")
 	if len(split) < 2 {
-		logrus.Log(nil).Error(fmt.Sprintf("User Handler Split Token Invalid, %v", len(split)))
+		logrus.Log(nil).Error(fmt.Sprintf(TOKENINVALIDLOG+" %v", len(split)))
 		return e.JSON(http.StatusUnauthorized, response.Set(message.ERROR, message.UNAUTHORIZED, nil, nil))
 	}
 
 	err = h.usecase.Logout(ctx, split[1])
 	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("User Handler Logout, %v", err.Error()))
+		logrus.Log(nil).Error(fmt.Sprintf(LOGOUTLOG+" %v", err.Error()))
 		return e.JSON(http.StatusInternalServerError, response.Set(message.ERROR, message.SOMETHINGWENTWRONG, nil, nil))
 	}
 	return e.JSON(http.StatusOK, response.Set(message.OK, message.SUCCESS, nil, nil))

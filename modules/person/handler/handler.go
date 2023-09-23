@@ -16,6 +16,18 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+var (
+	GETALLBINDQUERYPARAMLOG = "Person Handler GetAll BindQueryParam"
+	GEATALLLOG              = "Person Handler GetAll"
+	GETBYIDPARSEINTLOG      = "Person Handler GetByID ParseInt"
+	GETBYIDLOG              = "Person Handler GetByID"
+
+	DEFAULTLIMIT = 10
+	DEFAULTPAGE  = 1
+	BASE         = 10
+	BITSIZE      = 64
+)
+
 type IHandler interface {
 	GetAll(e echo.Context) (err error)
 	GetByID(e echo.Context) (err error)
@@ -34,18 +46,18 @@ func NewHandler(usecase usecase.IUsecase) IHandler {
 func (h *Handler) GetAll(e echo.Context) (err error) {
 	ctx := e.Request().Context()
 	param := param.Param{}
-	param.Limit = 10
-	param.Page = 1
+	param.Limit = DEFAULTLIMIT
+	param.Page = DEFAULTPAGE
 
 	err = (&echo.DefaultBinder{}).BindQueryParams(e, &param)
 	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("Person Handler GetAll BindQueryParam, %v", err.Error()))
+		logrus.Log(nil).Error(fmt.Sprintf(GETALLBINDQUERYPARAMLOG+" %v", err.Error()))
 		return e.JSON(http.StatusUnprocessableEntity, response.Set(message.ERROR, err.Error(), nil, nil))
 	}
 
 	persons, err := h.usecase.GetAll(ctx, &param)
 	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("Person Handler GetAll, %v", err.Error()))
+		logrus.Log(nil).Error(fmt.Sprintf(GEATALLLOG+" %v", err.Error()))
 		return e.JSON(http.StatusInternalServerError, response.Set(message.ERROR, message.SOMETHINGWENTWRONG, nil, nil))
 	}
 	meta := response.BuildMeta(param, len(persons))
@@ -55,14 +67,14 @@ func (h *Handler) GetAll(e echo.Context) (err error) {
 func (h *Handler) GetByID(e echo.Context) (err error) {
 	ctx := e.Request().Context()
 	id := e.Param("id")
-	personId, err := strconv.ParseInt(id, 10, 64)
+	personId, err := strconv.ParseInt(id, BASE, BITSIZE)
 	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("Person Handler GetByID ParseInt, %v", err.Error()))
+		logrus.Log(nil).Error(fmt.Sprintf(GETBYIDPARSEINTLOG+" %v", err.Error()))
 		return e.JSON(http.StatusUnprocessableEntity, response.Set(message.ERROR, err.Error(), nil, nil))
 	}
 	person, err := h.usecase.GetByID(ctx, personId)
 	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("Person Handler GetByID, %v", err.Error()))
+		logrus.Log(nil).Error(fmt.Sprintf(GETBYIDLOG+" %v", err.Error()))
 		if err == mongo.ErrNoDocuments {
 			return e.JSON(http.StatusNotFound, response.Set(message.ERROR, message.NOTFOUND, nil, nil))
 		}

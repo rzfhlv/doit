@@ -16,6 +16,20 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+var (
+	GETALLBINDQUERYPARAMLOG = "Investor Handler GetAll BindQueryParam"
+	GETALLLOG               = "Investor Handler GetAll"
+	GETBYIDPARSEINTLOG      = "Investor Handler GetByID ParseInt"
+	GETBYIDLOG              = "Investor Handler GetByID"
+	GENERATELOG             = "Investor Handler Generate"
+	MIGRATELOG              = "Investor Handler Migrate"
+
+	DEFAULTLIMIT = 10
+	DEFAULTPAGE  = 1
+	BASE         = 10
+	BITSIZE      = 64
+)
+
 type IHandler interface {
 	GetAll(e echo.Context) (err error)
 	GetByID(e echo.Context) (err error)
@@ -36,18 +50,18 @@ func NewHandler(usecase usecase.IUsecase) IHandler {
 func (h *Handler) GetAll(e echo.Context) (err error) {
 	ctx := e.Request().Context()
 	param := param.Param{}
-	param.Limit = 10
-	param.Page = 1
+	param.Limit = DEFAULTLIMIT
+	param.Page = DEFAULTPAGE
 
 	err = (&echo.DefaultBinder{}).BindQueryParams(e, &param)
 	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("Investor Handler GetAll BindQueryParam, %v", err.Error()))
+		logrus.Log(nil).Error(fmt.Sprintf(GETALLBINDQUERYPARAMLOG+" %v", err.Error()))
 		return e.JSON(http.StatusUnprocessableEntity, response.Set(message.ERROR, err.Error(), nil, nil))
 	}
 
 	investors, err := h.usecase.GetAll(ctx, &param)
 	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("Investor Handler GetAll, %v", err.Error()))
+		logrus.Log(nil).Error(fmt.Sprintf(GETALLLOG+" %v", err.Error()))
 		return e.JSON(http.StatusInternalServerError, response.Set(message.ERROR, message.SOMETHINGWENTWRONG, nil, nil))
 	}
 	meta := response.BuildMeta(param, len(investors))
@@ -57,14 +71,14 @@ func (h *Handler) GetAll(e echo.Context) (err error) {
 func (h *Handler) GetByID(e echo.Context) (err error) {
 	ctx := e.Request().Context()
 	id := e.Param("id")
-	investorId, err := strconv.ParseInt(id, 10, 64)
+	investorId, err := strconv.ParseInt(id, BASE, BITSIZE)
 	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("Investor Handler GetByID ParseInt, %v", err.Error()))
+		logrus.Log(nil).Error(fmt.Sprintf(GETBYIDPARSEINTLOG+" %v", err.Error()))
 		return e.JSON(http.StatusUnprocessableEntity, response.Set(message.ERROR, err.Error(), nil, nil))
 	}
 	investor, err := h.usecase.GetByID(ctx, investorId)
 	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("Investor Handler GetByID, %v", err.Error()))
+		logrus.Log(nil).Error(fmt.Sprintf(GETBYIDLOG+" %v", err.Error()))
 		if err == sql.ErrNoRows {
 			return e.JSON(http.StatusNotFound, response.Set(message.ERROR, message.NOTFOUND, nil, nil))
 		}
@@ -78,7 +92,7 @@ func (h *Handler) Generate(e echo.Context) (err error) {
 
 	err = h.usecase.Generate(ctx)
 	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("Investor Handler Generate, %v", err.Error()))
+		logrus.Log(nil).Error(fmt.Sprintf(GENERATELOG+" %v", err.Error()))
 		return e.JSON(http.StatusInternalServerError, response.Set(message.ERROR, message.SOMETHINGWENTWRONG, nil, nil))
 	}
 	return e.JSON(http.StatusOK, response.Set(message.OK, message.SUCCESS, nil, nil))
@@ -89,7 +103,7 @@ func (h *Handler) Migrate(e echo.Context) (err error) {
 
 	err = h.usecase.MigrateInvestors(ctx)
 	if err != nil {
-		logrus.Log(nil).Error(fmt.Sprintf("Investor Handler Migrate, %v", err.Error()))
+		logrus.Log(nil).Error(fmt.Sprintf(MIGRATELOG+" %v", err.Error()))
 		return e.JSON(http.StatusInternalServerError, response.Set(message.ERROR, message.SOMETHINGWENTWRONG, nil, nil))
 	}
 	return e.JSON(http.StatusOK, response.Set(message.OK, message.SUCCESS, nil, nil))

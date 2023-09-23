@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -33,7 +32,7 @@ func NewHandler(usecase usecase.IUsecase) IHandler {
 }
 
 func (h *Handler) GetAll(e echo.Context) (err error) {
-	ctx := e.Request().WithContext(context.Background()).Context()
+	ctx := e.Request().Context()
 	param := param.Param{}
 	param.Limit = 10
 	param.Page = 1
@@ -54,7 +53,7 @@ func (h *Handler) GetAll(e echo.Context) (err error) {
 }
 
 func (h *Handler) GetByID(e echo.Context) (err error) {
-	ctx := e.Request().WithContext(context.Background()).Context()
+	ctx := e.Request().Context()
 	id := e.Param("id")
 	personId, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {

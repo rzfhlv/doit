@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 	"net/http"
@@ -38,7 +37,7 @@ func NewHandler(usecase usecase.IUsecase) IHandler {
 }
 
 func (h *Handler) Register(e echo.Context) (err error) {
-	ctx := e.Request().WithContext(context.Background()).Context()
+	ctx := e.Request().Context()
 
 	user := model.User{}
 	err = e.Bind(&user)
@@ -67,7 +66,7 @@ func (h *Handler) Register(e echo.Context) (err error) {
 }
 
 func (h *Handler) Login(e echo.Context) (err error) {
-	ctx := e.Request().WithContext(context.Background()).Context()
+	ctx := e.Request().Context()
 
 	login := model.Login{}
 	err = e.Bind(&login)
@@ -95,7 +94,7 @@ func (h *Handler) Login(e echo.Context) (err error) {
 }
 
 func (h *Handler) Validate(e echo.Context) (err error) {
-	ctx := e.Request().WithContext(context.Background()).Context()
+	ctx := e.Request().Context()
 
 	validate := model.Validate{}
 	err = e.Bind(&validate)
@@ -119,7 +118,7 @@ func (h *Handler) Validate(e echo.Context) (err error) {
 }
 
 func (h *Handler) Logout(e echo.Context) (err error) {
-	ctx := e.Request().WithContext(context.Background()).Context()
+	ctx := e.Request().Context()
 
 	split := strings.Split(e.Request().Header.Get("Authorization"), " ")
 	if len(split) < 2 {

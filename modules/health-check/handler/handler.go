@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 
@@ -29,7 +28,7 @@ func NewHandler(usecase usecase.IUsecase) IHandler {
 }
 
 func (h *Handler) HealthCheck(e echo.Context) (err error) {
-	ctx := e.Request().WithContext(context.Background()).Context()
+	ctx := e.Request().Context()
 
 	err = h.usecase.HealthCheck(ctx)
 	if err != nil {

@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 	"net/http"
@@ -35,7 +34,7 @@ func NewHandler(usecase usecase.IUsecase) IHandler {
 }
 
 func (h *Handler) GetAll(e echo.Context) (err error) {
-	ctx := e.Request().WithContext(context.Background()).Context()
+	ctx := e.Request().Context()
 	param := param.Param{}
 	param.Limit = 10
 	param.Page = 1
@@ -56,7 +55,7 @@ func (h *Handler) GetAll(e echo.Context) (err error) {
 }
 
 func (h *Handler) GetByID(e echo.Context) (err error) {
-	ctx := e.Request().WithContext(context.Background()).Context()
+	ctx := e.Request().Context()
 	id := e.Param("id")
 	investorId, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
@@ -75,7 +74,7 @@ func (h *Handler) GetByID(e echo.Context) (err error) {
 }
 
 func (h *Handler) Generate(e echo.Context) (err error) {
-	ctx := e.Request().WithContext(context.Background()).Context()
+	ctx := e.Request().Context()
 
 	err = h.usecase.Generate(ctx)
 	if err != nil {
@@ -86,7 +85,7 @@ func (h *Handler) Generate(e echo.Context) (err error) {
 }
 
 func (h *Handler) Migrate(e echo.Context) (err error) {
-	ctx := e.Request().WithContext(context.Background()).Context()
+	ctx := e.Request().Context()
 
 	err = h.usecase.MigrateInvestors(ctx)
 	if err != nil {

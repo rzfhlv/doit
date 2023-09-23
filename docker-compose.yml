@@ -33,7 +33,7 @@ services:
 
   postgres:
     container_name: doit-postgres
-    image: postgres:10
+    image: postgres:15.4-alpine
     restart: always
     environment:
       POSTGRES_USER: ${DB_USER}
@@ -48,7 +48,7 @@ services:
   
   adminer:
     container_name: doit-adminer
-    image: adminer
+    image: adminer:4.8.0-standalone
     restart: always
     ports:
       - "8181:8080"
@@ -57,7 +57,7 @@ services:
 
   mongo:
     container_name: doit-mongo
-    image: mongo:5.0
+    image: mongo:5.0-focal
     ports:
       - ${MONGO_PORT}:27017
     volumes:

@@ -7,17 +7,23 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+var (
+	LAYOUT = "2006-01-02 15:04:05"
+)
+
 func Log(c echo.Context) *log.Entry {
+	now := time.Now().Format(LAYOUT)
 	if c == nil {
 		return log.WithFields(log.Fields{
-			"at": time.Now().Format("2006-01-02 15:04:05"),
+			"at": now,
 		})
 	}
 
 	return log.WithFields(log.Fields{
-		"at":     time.Now().Format("2006-01-02 15:04:05"),
+		"at":     now,
 		"method": c.Request().Method,
 		"uri":    c.Request().URL.String(),
 		"ip":     c.Request().RemoteAddr,
+		"id":     c.Response().Header().Get(echo.HeaderXRequestID),
 	})
 }

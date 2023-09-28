@@ -23,6 +23,7 @@ func (cv CustomValidator) Validate(i interface{}) error {
 func ListRoutes(svc *service.Service) (e *echo.Echo) {
 	e = echo.New()
 	e.Use(middleware.Recover())
+	e.Use(middleware.RequestID())
 	e.Use(svc.Middleware.Log.Logrus)
 	e.Validator = &CustomValidator{validator: validator.New()}
 

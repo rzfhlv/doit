@@ -13,6 +13,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 
+	aJaeger "github.com/rzfhlv/doit/adapter/jaeger"
 	aMongo "github.com/rzfhlv/doit/adapter/mongo"
 	aPostgres "github.com/rzfhlv/doit/adapter/postgres"
 	aRedis "github.com/rzfhlv/doit/adapter/redis"
@@ -22,8 +23,9 @@ type Config struct {
 	Postgres *sqlx.DB
 	Mongo    *mongo.Database
 	Redis    *redis.Client
-	JWTImpl  uJwt.JWTInterface
-	Utils    Utils
+	aJaeger.Jaeger
+	JWTImpl uJwt.JWTInterface
+	Utils   Utils
 }
 
 type Utils struct {
@@ -60,6 +62,13 @@ func Init() *Config {
 		os.Exit(1)
 	}
 
+	// init jaeger
+	jaeger, err := aJaeger.NewJaeger()
+	if err != nil {
+		logrus.Log(nil).Error(fmt.Sprintf("Jaeger Connection, %v", err.Error()))
+		os.Exit(1)
+	}
+
 	jwtImpl := uJwt.JWTImpl{}
 	hasher := hasher.HasherPassword{}
 
@@ -67,7 +76,11 @@ func Init() *Config {
 		Postgres: postgres.GetDB(),
 		Mongo:    mongo.GetDB(),
 		Redis:    redis.GetClient(),
-		JWTImpl:  &jwtImpl,
+		Jaeger: aJaeger.Jaeger{
+			Tracer: jaeger.Tracer,
+			Closer: jaeger.Closer,
+		},
+		JWTImpl: &jwtImpl,
 		Utils: Utils{
 			JWTImpl: &jwtImpl,
 			Hasher:  &hasher,

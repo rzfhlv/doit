@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 
+	"github.com/opentracing/opentracing-go"
 	"github.com/rzfhlv/doit/modules/health-check/repository"
 )
 
@@ -21,6 +22,9 @@ func NewUsecase(repo repository.IRepository) IUsecase {
 }
 
 func (u *Usecase) HealthCheck(ctx context.Context) (err error) {
+	sp, ctx := opentracing.StartSpanFromContext(ctx, "Health Check Usecase HealthCheck")
+	defer sp.Finish()
+
 	err = u.repo.Ping(ctx)
 	if err != nil {
 		return

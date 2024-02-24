@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/opentracing/opentracing-go"
 	"github.com/rzfhlv/doit/modules/investor/usecase"
 	"github.com/rzfhlv/doit/utilities/message"
 	"github.com/rzfhlv/doit/utilities/param"
@@ -49,6 +50,9 @@ func NewHandler(usecase usecase.IUsecase) IHandler {
 
 func (h *Handler) GetAll(e echo.Context) (err error) {
 	ctx := e.Request().Context()
+	sp, ctx := opentracing.StartSpanFromContext(ctx, "Investor Handler GetAll")
+	defer sp.Finish()
+
 	param := param.Param{}
 	param.Limit = DEFAULTLIMIT
 	param.Page = DEFAULTPAGE
@@ -70,6 +74,9 @@ func (h *Handler) GetAll(e echo.Context) (err error) {
 
 func (h *Handler) GetByID(e echo.Context) (err error) {
 	ctx := e.Request().Context()
+	sp, ctx := opentracing.StartSpanFromContext(ctx, "Invesstor Handler GetByID")
+	defer sp.Finish()
+
 	id := e.Param("id")
 	investorId, err := strconv.ParseInt(id, BASE, BITSIZE)
 	if err != nil {
@@ -89,6 +96,8 @@ func (h *Handler) GetByID(e echo.Context) (err error) {
 
 func (h *Handler) Generate(e echo.Context) (err error) {
 	ctx := e.Request().Context()
+	sp, ctx := opentracing.StartSpanFromContext(ctx, "Investor Handler Generate")
+	defer sp.Finish()
 
 	err = h.usecase.Generate(ctx)
 	if err != nil {
@@ -100,6 +109,8 @@ func (h *Handler) Generate(e echo.Context) (err error) {
 
 func (h *Handler) Migrate(e echo.Context) (err error) {
 	ctx := e.Request().Context()
+	sp, ctx := opentracing.StartSpanFromContext(ctx, "Investor Handler Migrate")
+	defer sp.Finish()
 
 	err = h.usecase.MigrateInvestors(ctx)
 	if err != nil {

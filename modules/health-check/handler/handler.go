@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/opentracing/opentracing-go"
 	"github.com/rzfhlv/doit/modules/health-check/usecase"
 	"github.com/rzfhlv/doit/utilities/message"
 	"github.com/rzfhlv/doit/utilities/response"
@@ -33,6 +34,8 @@ func NewHandler(usecase usecase.IUsecase) IHandler {
 
 func (h *Handler) HealthCheck(e echo.Context) (err error) {
 	ctx := e.Request().Context()
+	sp, ctx := opentracing.StartSpanFromContext(ctx, "Health Check Handler HealthCheck")
+	defer sp.Finish()
 
 	err = h.usecase.HealthCheck(ctx)
 	if err != nil {

@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 
+	"github.com/opentracing/opentracing-go"
 	"github.com/rzfhlv/doit/modules/person/model"
 	"github.com/rzfhlv/doit/utilities/param"
 
@@ -32,6 +33,9 @@ func NewRepository(dbMongo *mongo.Database) IRepository {
 }
 
 func (r *Repository) GetAll(ctx context.Context, param param.Param) (persons []model.Person, err error) {
+	sp, ctx := opentracing.StartSpanFromContext(ctx, "Person Repository GetAll")
+	defer sp.Finish()
+
 	findOptions := options.Find()
 	findOptions.SetSort(bson.D{{Key: "id", Value: -1}})
 	findOptions.SetSkip(int64(param.CalculateOffset()))
@@ -55,11 +59,17 @@ func (r *Repository) GetAll(ctx context.Context, param param.Param) (persons []m
 }
 
 func (r *Repository) GetByID(ctx context.Context, id int64) (person model.Person, err error) {
+	sp, ctx := opentracing.StartSpanFromContext(ctx, "Person Repository GetByID")
+	defer sp.Finish()
+
 	err = r.dbMongo.Collection(INVESTORS).FindOne(ctx, bson.M{"id": id}).Decode(&person)
 	return
 }
 
 func (r *Repository) Count(ctx context.Context) (total int64, err error) {
+	sp, ctx := opentracing.StartSpanFromContext(ctx, "Person Repository Count")
+	defer sp.Finish()
+
 	total, err = r.dbMongo.Collection(INVESTORS).CountDocuments(ctx, bson.M{})
 	return
 }

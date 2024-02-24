@@ -59,4 +59,20 @@ func main() {
 	if err := e.Shutdown(ctx); err != nil {
 		e.Logger.Fatal(err)
 	}
+
+	if err := cfg.Postgres.Close(); err != nil {
+		e.Logger.Fatal(err.Error())
+	}
+
+	if err := cfg.Redis.Close(); err != nil {
+		e.Logger.Fatal(err.Error())
+	}
+
+	if err := cfg.Mongo.Client().Disconnect(context.Background()); err != nil {
+		e.Logger.Fatal(err.Error())
+	}
+
+	if err := cfg.Jaeger.Closer.Close(); err != nil {
+		e.Logger.Fatal(err.Error())
+	}
 }

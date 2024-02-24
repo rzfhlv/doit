@@ -71,7 +71,7 @@ func TestGetInvestorsUsecase(t *testing.T) {
 			repo: &mockRepo,
 		}
 
-		resultChan := u.getInvestors()
+		resultChan := u.getInvestors(context.Background())
 
 		var collectedInvestors []model.Investor
 		for investor := range resultChan {
@@ -101,7 +101,7 @@ func TestUpsertInvestorsUsecase(t *testing.T) {
 		investorChan <- mockInvestor
 		close(investorChan)
 
-		resultChan := u.upsertInvestors(investorChan)
+		resultChan := u.upsertInvestors(context.Background(), investorChan)
 
 		var collectedInvestors []model.Investor
 		for investor := range resultChan {
@@ -152,7 +152,7 @@ func TestMergeChanInvestorUsecase(t *testing.T) {
 		repo: &mockRepo,
 	}
 
-	resultChan := u.mergeChanInvestor(chan1, chan2)
+	resultChan := u.mergeChanInvestor(context.Background(), chan1, chan2)
 	var collectedData []model.Investor
 	for data := range resultChan {
 		collectedData = append(collectedData, data)

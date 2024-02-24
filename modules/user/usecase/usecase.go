@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/opentracing/opentracing-go"
 	"github.com/rzfhlv/doit/modules/user/model"
 	"github.com/rzfhlv/doit/modules/user/repository"
 	"github.com/rzfhlv/doit/utilities/hasher"
@@ -39,6 +40,9 @@ func NewUsecase(repo repository.IRepository, jwtImpl jwt.JWTInterface, hasher ha
 }
 
 func (u *Usecase) Register(ctx context.Context, user model.User) (result model.JWT, err error) {
+	sp, ctx := opentracing.StartSpanFromContext(ctx, "User Usecase Register")
+	defer sp.Finish()
+
 	hashPassword, err := u.hasher.HashedPassword(user.Password)
 	if err != nil {
 		return
@@ -76,6 +80,9 @@ func (u *Usecase) Register(ctx context.Context, user model.User) (result model.J
 }
 
 func (u *Usecase) Login(ctx context.Context, login model.Login) (result model.JWT, err error) {
+	sp, ctx := opentracing.StartSpanFromContext(ctx, "User Usecase Login")
+	defer sp.Finish()
+
 	data, err := u.repo.Login(ctx, login)
 	if err != nil {
 		return
@@ -102,11 +109,17 @@ func (u *Usecase) Login(ctx context.Context, login model.Login) (result model.JW
 }
 
 func (u *Usecase) Validate(ctx context.Context, validate model.Validate) (result *jwt.JWTClaim, err error) {
+	sp, _ := opentracing.StartSpanFromContext(ctx, "User Usecase Validate")
+	sp.Finish()
+
 	result, err = u.jwtImpl.ValidateToken(validate.Token)
 	return
 }
 
 func (u *Usecase) Logout(ctx context.Context, token string) (err error) {
+	sp, ctx := opentracing.StartSpanFromContext(ctx, "User Usecase Logout")
+	defer sp.Finish()
+
 	err = u.repo.Del(ctx, token)
 	return
 }

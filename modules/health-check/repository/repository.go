@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/opentracing/opentracing-go"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -30,16 +31,25 @@ func NewRepository(db *sqlx.DB, dbMongo *mongo.Database, redis *redis.Client) IR
 }
 
 func (r *Repository) Ping(ctx context.Context) (err error) {
+	sp, _ := opentracing.StartSpanFromContext(ctx, "Health Check Repository Ping")
+	defer sp.Finish()
+
 	err = r.db.Ping()
 	return
 }
 
 func (r *Repository) MongoPing(ctx context.Context) (err error) {
+	sp, _ := opentracing.StartSpanFromContext(ctx, "Health Check Repository MongoPing")
+	defer sp.Finish()
+
 	err = r.dbMongo.Client().Ping(ctx, readpref.Primary())
 	return
 }
 
 func (r *Repository) RedisPing(ctx context.Context) (err error) {
+	sp, _ := opentracing.StartSpanFromContext(ctx, "Health Check Repository RedisPing")
+	defer sp.Finish()
+
 	err = r.redis.Ping(ctx).Err()
 	return
 }

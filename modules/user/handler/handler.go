@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/opentracing/opentracing-go"
 	"github.com/rzfhlv/doit/modules/user/model"
 	"github.com/rzfhlv/doit/modules/user/usecase"
 	"github.com/rzfhlv/doit/utilities/message"
@@ -57,6 +58,8 @@ func NewHandler(usecase usecase.IUsecase) IHandler {
 
 func (h *Handler) Register(e echo.Context) (err error) {
 	ctx := e.Request().Context()
+	sp, ctx := opentracing.StartSpanFromContext(ctx, "User Handler Register")
+	defer sp.Finish()
 
 	user := model.User{}
 	err = e.Bind(&user)
@@ -86,6 +89,8 @@ func (h *Handler) Register(e echo.Context) (err error) {
 
 func (h *Handler) Login(e echo.Context) (err error) {
 	ctx := e.Request().Context()
+	sp, ctx := opentracing.StartSpanFromContext(ctx, "User Handler Login")
+	defer sp.Finish()
 
 	login := model.Login{}
 	err = e.Bind(&login)
@@ -114,6 +119,8 @@ func (h *Handler) Login(e echo.Context) (err error) {
 
 func (h *Handler) Validate(e echo.Context) (err error) {
 	ctx := e.Request().Context()
+	sp, ctx := opentracing.StartSpanFromContext(ctx, "User Handler Validate")
+	defer sp.Finish()
 
 	validate := model.Validate{}
 	err = e.Bind(&validate)
@@ -138,6 +145,8 @@ func (h *Handler) Validate(e echo.Context) (err error) {
 
 func (h *Handler) Logout(e echo.Context) (err error) {
 	ctx := e.Request().Context()
+	sp, ctx := opentracing.StartSpanFromContext(ctx, "User Handler Logout")
+	defer sp.Finish()
 
 	split := strings.Split(e.Request().Header.Get(AUTHORIZATION), " ")
 	if len(split) < 2 {

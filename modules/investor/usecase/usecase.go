@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 
+	"github.com/opentracing/opentracing-go"
 	"github.com/rzfhlv/doit/modules/investor/model"
 	"github.com/rzfhlv/doit/modules/investor/repository"
 	"github.com/rzfhlv/doit/utilities/param"
@@ -29,6 +30,9 @@ func NewUsecase(repo repository.IRepository) IUsecase {
 }
 
 func (u *Usecase) GetAll(ctx context.Context, param *param.Param) (investors []model.Investor, err error) {
+	sp, ctx := opentracing.StartSpanFromContext(ctx, "Investor Usecase GetAll")
+	defer sp.Finish()
+
 	investors, err = u.repo.GetAll(ctx, *param)
 	if err != nil {
 		return
@@ -42,11 +46,17 @@ func (u *Usecase) GetAll(ctx context.Context, param *param.Param) (investors []m
 }
 
 func (u *Usecase) GetByID(ctx context.Context, id int64) (investor model.Investor, err error) {
+	sp, ctx := opentracing.StartSpanFromContext(ctx, "Investor Usecase GetByID")
+	defer sp.Finish()
+
 	investor, err = u.repo.GetByID(ctx, id)
 	return
 }
 
 func (u *Usecase) Generate(ctx context.Context) (err error) {
+	sp, ctx := opentracing.StartSpanFromContext(ctx, "Investor Usecase Generate")
+	defer sp.Finish()
+
 	for i := 1; i <= 1000; i++ {
 		name := faker.Name()
 		err = u.repo.Generate(ctx, name)

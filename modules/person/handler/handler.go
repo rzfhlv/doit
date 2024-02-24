@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/opentracing/opentracing-go"
 	"github.com/rzfhlv/doit/modules/person/usecase"
 	"github.com/rzfhlv/doit/utilities/message"
 	"github.com/rzfhlv/doit/utilities/param"
@@ -45,6 +46,9 @@ func NewHandler(usecase usecase.IUsecase) IHandler {
 
 func (h *Handler) GetAll(e echo.Context) (err error) {
 	ctx := e.Request().Context()
+	sp, ctx := opentracing.StartSpanFromContext(ctx, "Person Handler GetAll")
+	defer sp.Finish()
+
 	param := param.Param{}
 	param.Limit = DEFAULTLIMIT
 	param.Page = DEFAULTPAGE
@@ -66,6 +70,9 @@ func (h *Handler) GetAll(e echo.Context) (err error) {
 
 func (h *Handler) GetByID(e echo.Context) (err error) {
 	ctx := e.Request().Context()
+	sp, ctx := opentracing.StartSpanFromContext(ctx, "Person Handler GetByID")
+	defer sp.Finish()
+
 	id := e.Param("id")
 	personId, err := strconv.ParseInt(id, BASE, BITSIZE)
 	if err != nil {

@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/opentracing/opentracing-go"
 	"github.com/rzfhlv/doit/modules/investor/model"
 	logrus "github.com/rzfhlv/doit/utilities/log"
 )
@@ -23,6 +24,9 @@ var (
 )
 
 func (u *Usecase) ConventionalMigrate(ctx context.Context) (err error) {
+	sp, ctx := opentracing.StartSpanFromContext(ctx, "Investor Usecase ConventionalMigrate")
+	defer sp.Finish()
+
 	investors, err := u.repo.GetPsql(ctx)
 	if err != nil {
 		return
@@ -37,13 +41,16 @@ func (u *Usecase) ConventionalMigrate(ctx context.Context) (err error) {
 }
 
 func (u *Usecase) MigrateInvestors(ctx context.Context) (err error) {
-	chInvestor := u.getInvestors()
-	workerInvestor1 := u.upsertInvestors(chInvestor)
-	workerInvestor2 := u.upsertInvestors(chInvestor)
-	workerInvestor3 := u.upsertInvestors(chInvestor)
-	workerInvestor4 := u.upsertInvestors(chInvestor)
-	workerInvestor5 := u.upsertInvestors(chInvestor)
-	chanInvestorSum := u.mergeChanInvestor(workerInvestor1, workerInvestor2, workerInvestor3, workerInvestor4, workerInvestor5)
+	sp, ctx := opentracing.StartSpanFromContext(ctx, "Investor Usecase MigrateInvestors")
+	defer sp.Finish()
+
+	chInvestor := u.getInvestors(ctx)
+	workerInvestor1 := u.upsertInvestors(ctx, chInvestor)
+	workerInvestor2 := u.upsertInvestors(ctx, chInvestor)
+	workerInvestor3 := u.upsertInvestors(ctx, chInvestor)
+	workerInvestor4 := u.upsertInvestors(ctx, chInvestor)
+	workerInvestor5 := u.upsertInvestors(ctx, chInvestor)
+	chanInvestorSum := u.mergeChanInvestor(ctx, workerInvestor1, workerInvestor2, workerInvestor3, workerInvestor4, workerInvestor5)
 
 	// print output
 	counterTotal := 0
@@ -57,11 +64,14 @@ func (u *Usecase) MigrateInvestors(ctx context.Context) (err error) {
 	return
 }
 
-func (u *Usecase) getInvestors() <-chan model.Investor {
+func (u *Usecase) getInvestors(ctx context.Context) <-chan model.Investor {
+	sp, ctx := opentracing.StartSpanFromContext(ctx, "Investor Usecase getInvestors")
+	defer sp.Finish()
+
 	chanOut := make(chan model.Investor)
 
 	go func() {
-		investors, err := u.repo.GetPsql(context.Background())
+		investors, err := u.repo.GetPsql(ctx)
 		if err != nil {
 			logrus.Log(nil).Error(fmt.Sprintf(GETINVESTORSLOG+" %v", err.Error()))
 			return
@@ -76,11 +86,13 @@ func (u *Usecase) getInvestors() <-chan model.Investor {
 	return chanOut
 }
 
-func (u *Usecase) upsertInvestors(chanIn <-chan model.Investor) <-chan model.Investor {
+func (u *Usecase) upsertInvestors(ctx context.Context, chanIn <-chan model.Investor) <-chan model.Investor {
+	sp, ctx := opentracing.StartSpanFromContext(ctx, "Investor Usecase upsertInvestors")
+	defer sp.Finish()
+
 	chanOut := make(chan model.Investor)
 
 	go func() {
-		ctx := context.Background()
 		for investor := range chanIn {
 			now := time.Now()
 			payload, err := json.Marshal(investor)
@@ -114,7 +126,10 @@ func (u *Usecase) upsertInvestors(chanIn <-chan model.Investor) <-chan model.Inv
 	return chanOut
 }
 
-func (u *Usecase) mergeChanInvestor(chanInMany ...<-chan model.Investor) <-chan model.Investor {
+func (u *Usecase) mergeChanInvestor(ctx context.Context, chanInMany ...<-chan model.Investor) <-chan model.Investor {
+	sp, _ := opentracing.StartSpanFromContext(ctx, "Investor Usecase mergeChanInvestor")
+	defer sp.Finish()
+
 	wg := new(sync.WaitGroup)
 	chanOut := make(chan model.Investor)
 
@@ -137,6 +152,9 @@ func (u *Usecase) mergeChanInvestor(chanInMany ...<-chan model.Investor) <-chan 
 }
 
 func (u *Usecase) saveOutbox(ctx context.Context, now time.Time, payload []byte, investor model.Investor) (err error) {
+	sp, ctx := opentracing.StartSpanFromContext(ctx, "Investor Usecase saveOutBox")
+	defer sp.Finish()
+
 	outBox := model.Outbox{
 		Identifier: investor.ID,
 		Payload:    string(payload),
@@ -150,6 +168,9 @@ func (u *Usecase) saveOutbox(ctx context.Context, now time.Time, payload []byte,
 }
 
 func (u *Usecase) upsertMongo(ctx context.Context, now time.Time, payload []byte, investor model.Investor) (err error) {
+	sp, ctx := opentracing.StartSpanFromContext(ctx, "Investor Usecase upsertMongo")
+	defer sp.Finish()
+
 	err = u.repo.UpsertMongo(ctx, investor)
 	if err != nil {
 		logrus.Log(nil).Error(fmt.Sprintf(UPSERTMONGOLOG+" %v", err.Error()))
@@ -168,6 +189,9 @@ func (u *Usecase) upsertMongo(ctx context.Context, now time.Time, payload []byte
 }
 
 func (u *Usecase) deleteOutbox(ctx context.Context, id int64) (err error) {
+	sp, ctx := opentracing.StartSpanFromContext(ctx, "Investor Usecase deleteOutBox")
+	defer sp.Finish()
+
 	err = u.repo.DeleteOutbox(ctx, id)
 	return
 }

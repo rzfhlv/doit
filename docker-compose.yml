@@ -45,15 +45,6 @@ services:
       - ~/data/db/postgres/doit:/var/lib/postgresql/data
     networks:
       - doit
-  
-  adminer:
-    container_name: doit-adminer
-    image: adminer:4.8.0-standalone
-    restart: always
-    ports:
-      - "8181:8080"
-    networks:
-      - doit
 
   mongo:
     container_name: doit-mongo
@@ -77,6 +68,15 @@ services:
     command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
     volumes:
       - ~/data/db/redis/doit:/data
+    networks:
+      - doit
+  
+  jaeger:
+    container_name: doit-jaeger
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "6831:6831/udp"
+      - "16686:16686"
     networks:
       - doit
 
